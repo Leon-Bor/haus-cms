@@ -1,6 +1,6 @@
 # Haus CMS
 
-This project was created because of I'm dont want to be my parent IT-Support anymore.
+This project was created because I had an idea
 
 ## Development server
 
