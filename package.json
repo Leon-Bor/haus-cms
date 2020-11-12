@@ -3,7 +3,7 @@
   "version": "0.0.50",
   "private": true,
   "scripts": {
-    "start": "nodemon ./bin/www",
+    "start": "node haus-html-parser.js && nodemon ./bin/www",
     "build": "npm run git && npm run update-server",
     "test": "ng test",
     "lint": "ng lint",

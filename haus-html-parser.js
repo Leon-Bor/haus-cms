@@ -17,6 +17,12 @@ const translator = short(short.constants.flickrBase58, {
   consistentLength: false,
 });
 
+var dir = './dist';
+
+if (!fs.existsSync(dir)) {
+  fs.mkdirSync(dir);
+}
+
 fs.readFile('src/index.html', 'utf8', function (err, data) {
   if (err) throw err;
   // console.log(data);
@@ -68,7 +74,7 @@ fs.readFile('src/index.html', 'utf8', function (err, data) {
       e.set_content(`{{ data.${id} | safe }}`);
     });
 
-    console.log('written');
+    console.log('Created templates');
 
     fs.writeFileSync('./dist/index.generated.nunjucks', root.toString());
   });
