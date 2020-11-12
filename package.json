@@ -3,7 +3,7 @@
   "version": "0.0.50",
   "private": true,
   "scripts": {
-    "start": "node haus-html-parser.js && nodemon ./bin/www",
+    "start": "node haus-html-parser.js && node ./bin/www",
     "build": "npm run git && npm run update-server",
     "test": "ng test",
     "lint": "ng lint",
@@ -37,6 +37,7 @@
     "lowdb": "^1.0.0",
     "morgan": "~1.9.0",
     "node-html-parser": "^2.0.0",
+    "nodemon": "^2.0.6",
     "normalize.css": "^8.0.1",
     "notyf": "^3.6.0",
     "nunjucks": "^3.2.2",
