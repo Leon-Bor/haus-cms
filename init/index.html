@@ -1,17 +1,33 @@
 <html>
   <head>
     <title>{{title}}</title>
-  </head>
+    <link rel="stylesheet" href="styles.css" />
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.slim.min.js"
+      integrity="sha256-4+XzXVhsDmqanXGHaHvgh1gMQKX40OUvDEBTu8JcmNs="
+      crossorigin="anonymous"
+    ></script><link rel="preconnect" href="https://fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet">
   <body>
-    <div>
-      <h1>HAUS</h1>
-      <div data-haus>{{title}}</div>
-      <div data-haus>Your website is already set up. You can edit this text on the fly if you click the edit button.</div>
-      <div>
-        <lable>Enter your key</lable>
+    <div class="intro"></div>
+    <div class="page">
+      <div class="container">
+        <h1>⌂</h1>
+        <div data-haus>
+          <h2 >Content Management</h2>
+        </div>
+         <div data-haus>
+          <p>
+            It seems like you were successful in setting up the Haus CMS. Now add you key to the box below and upload your template.
+          </p>
+        </div>
+        <div class="form" data-haus>
+          <label>Enter your CMS key</label>
+          <input placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" />
+          <button>Let's go</button>
+        </div>
       </div>
-      <input placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" />
-      <button>Get startet</button>
     </div>
+    <script src="main.js"></script>
   </body>
 </html>

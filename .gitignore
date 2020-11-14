@@ -1,5 +1,17 @@
+
+src/template/*
+!src/template/.gitkeep
+
+src/components/*
+!src/components/.gitkeep
+
+#src/public/*
+#!src/public/.gitkeep
+
 db.json
 package-lock.json
+
+
 #src/*.html
 #src/public/*
 # Logs
