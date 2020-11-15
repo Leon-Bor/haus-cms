@@ -5,7 +5,7 @@
  */
 
 var app = require('../app');
-var debug = require('debug')('sterni-bingo:server');
+var debug = require('debug')('haus-cms:server');
 var http = require('http');
 
 /**

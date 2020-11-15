@@ -3,6 +3,10 @@ var router = express.Router();
 const { exec } = require('child_process');
 const low = require('lowdb');
 const FileSync = require('lowdb/adapters/FileSync');
+var fs = require('fs');
+var unzipper = require('unzipper');
+var findit = require('findit');
+var path = require('path');
 
 const adapter = new FileSync('db.json');
 const db = low(adapter);
@@ -58,7 +62,7 @@ db.defaults({ innerHTML: {} }).write();
 // /* GET home page. */
 // router.get('/build12345678909876543212345678', function (req, res, next) {
 //   try {
-//     const command = `sudo git pull && sudo npm i && sudo pm2 restart sterni-bingo`;
+//     const command = `sudo git pull && sudo npm i && sudo pm2 restart haus-cms`;
 
 //     exec(command, (error, stdout, stderr) => {
 //       if (error) {
@@ -73,6 +77,118 @@ db.defaults({ innerHTML: {} }).write();
 //     console.log(error);
 //   }
 // });
+
+function findIndexHtml() {
+  return new Promise((res, rej) => {
+    const finder = findit('./dist/template');
+    finder.on('directory', function (dir, stat, stop) {
+      var base = path.basename(dir);
+      if (base === '.git' || base === 'node_modules') stop();
+      // else console.log(dir + '/');
+    });
+
+    finder.on('file', function (file, stat) {
+      if (!file.includes('__MACOSX') && file.includes('index.html')) {
+        res(file);
+      }
+    });
+
+    finder.on('link', function (link, stat) {
+      // console.log(link);
+    });
+  });
+}
+
+function copyHtmlFiles(fromPath, toPath) {
+  const { COPYFILE_EXCL } = fs.constants;
+
+  return new Promise((res, rej) => {
+    const finder = findit(fromPath);
+
+    finder.on('file', function (file, stat) {
+      if (!file.includes('__MACOSX') && file.endsWith('.html')) {
+        console.log('copy fileÖ', file);
+        fs.copyFileSync(file, `${toPath}/${file.replace(/^.*[\\\/]/, '')}`, COPYFILE_EXCL);
+      }
+    });
+
+    finder.on('end', function () {
+      res();
+    });
+  });
+}
+
+function copyAssetFiles(fromPath, toPath) {
+  const { COPYFILE_EXCL } = fs.constants;
+
+  return new Promise((res, rej) => {
+    const finder = findit(fromPath);
+
+    finder.on('file', function (file, stat) {
+      if (!file.includes('__MACOSX') && !file.endsWith('.html') && !file.includes('/.')) {
+        console.log('file', file, `${toPath}${file.replace(fromPath, '')}`);
+        var fileData = fs.readFileSync(file, 'utf8');
+
+        let pathArray = `${toPath}${file.replace(fromPath, '')}`.split('/');
+        pathArray.pop();
+        console.log(pathArray);
+        pathArray.reduce((pre, cur) => {
+          if (!fs.existsSync(pre + cur)) {
+            fs.mkdirSync(pre + cur, { recursive: true });
+          }
+          return pre + cur + '/';
+        }, '');
+
+        fs.writeFileSync(`${toPath}${file.replace(fromPath, '')}`, fileData);
+      }
+    });
+
+    finder.on('end', function () {
+      res();
+    });
+  });
+}
+
+router.post('/upload-file', function (req, res, next) {
+  var fstream;
+  try {
+    if (req.busboy) {
+      req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        fstream = fs.createWriteStream(__dirname + '/../dist/' + 'template.zip');
+        file.pipe(fstream);
+        fstream.on('close', () => {
+          console.log('file ' + filename + ' uploaded');
+          try {
+            fs.createReadStream('./dist/template.zip')
+              .pipe(unzipper.Extract({ path: './dist/template' }))
+              .on('finish', () => {
+                findIndexHtml().then((file) => {
+                  console.log(file.substring(0, str.lastIndexOf('/')));
+                  // copyHtmlFiles(file.substring(0, str.lastIndexOf('/')), './test123');
+                  copyAssetFiles(file.substring(0, file.lastIndexOf('/')), './test123');
+                });
+              })
+              .on('error', (e) => {
+                findIndexHtml().then((file) => {
+                  console.log(file.substring(0, file.lastIndexOf('/')));
+                  // copyHtmlFiles(file.substring(0, file.lastIndexOf('/')), './test123');
+                  copyAssetFiles(file.substring(0, file.lastIndexOf('/')), './test123');
+                });
+              });
+          } catch (error) {
+            console.log(error);
+          }
+        });
+      });
+      req.busboy.on('finish', (fieldname, file, filename, encoding, mimetype) => {
+        res.json({ success: true });
+      });
+      req.pipe(req.busboy);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 /* GET home page. */
 router.get('/see-data', async (req, res, next) => {
