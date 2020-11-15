@@ -1,4 +1,6 @@
 const fs = require('fs');
+const htmlAddInlineEditor = require('../parser/html-add-inline-editor');
+const htmlFindInlineEditor = require('../parser/html-find-inline-editor');
 
 if (!fs.existsSync('node_modules')) {
   console.log(`> Error: Please run "npm install" first.`);
@@ -65,11 +67,19 @@ async function init() {
   await delay(1000);
   if (template.template == true) {
     try {
-      fs.copyFileSync('./init/index.html', './test/index.html', COPYFILE_EXCL);
+      fs.copyFileSync('./init/index.html', './src/templates/index.html', COPYFILE_EXCL);
+      fs.copyFileSync('./init/background-2.jpg', './src/public/background-2.jpg', COPYFILE_EXCL);
+      fs.copyFileSync('./init/background.jpg', './src/public/background.jpg', COPYFILE_EXCL);
+      fs.copyFileSync('./init/main.js', './src/public/main.js', COPYFILE_EXCL);
+      fs.copyFileSync('./init/styles.css', './src/public/styles.css', COPYFILE_EXCL);
+      htmlFindInlineEditor.parse();
+      htmlAddInlineEditor.parse();
       spinner.stop(true);
     } catch (error) {
       spinner.stop(true);
       console.log('> Warning: File "index.html: already exits in "src" folder');
+      htmlFindInlineEditor.parse();
+      htmlAddInlineEditor.parse();
     }
   }
 

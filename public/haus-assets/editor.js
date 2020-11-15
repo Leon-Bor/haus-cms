@@ -5,6 +5,15 @@
  * @param {string} [method=post] the method to use on the form
  */
 
+function getParameterByName(name, url = window.location.href) {
+  name = name.replace(/[\[\]]/g, '\\$&');
+  var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+    results = regex.exec(url);
+  if (!results) return null;
+  if (!results[2]) return '';
+  return decodeURIComponent(results[2].replace(/\+/g, ' '));
+}
+
 function post(path, data) {
   var xhr = new XMLHttpRequest();
   xhr.open('POST', path);
@@ -15,6 +24,27 @@ function post(path, data) {
     }
   };
   xhr.send(JSON.stringify(data));
+}
+
+var edit = getParameterByName('edit') || localStorage.getItem('haus-edit') || ''; // "lorem"
+localStorage.setItem('haus-edit', edit);
+var editKey = getParameterByName('editKey') || localStorage.getItem('haus-editKey') || ''; // "" (present with empty value)
+localStorage.setItem('haus-editKey', editKey);
+console.log('Edit', edit);
+if (edit == 'true') {
+  var link = document.createElement('link');
+  link.rel = 'stylesheet';
+  link.href = '/haus-assets/content-tools.min.css';
+  document.head.appendChild(link);
+
+  var link3 = document.createElement('link');
+  link3.rel = 'stylesheet';
+  link3.href = '/haus-assets/haus-globals.css';
+  document.head.appendChild(link3);
+
+  var script = document.createElement('script');
+  script.src = '/haus-assets/content-tools.min.js';
+  document.body.appendChild(script);
 }
 
 window.addEventListener('load', function () {
