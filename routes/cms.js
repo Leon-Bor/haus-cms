@@ -170,7 +170,35 @@ router.delete('/components/:componentName', auth, function (req, res, next) {
 
 router.get('/files', auth, function (req, res, next) {
   try {
-    res.json(true);
+    const finder = findit('./src/public');
+    const files = [];
+    finder.on('file', function (file, stat) {
+      files.push(file);
+    });
+
+    finder.on('end', function (file, stat) {
+      res.json(
+        files
+          .filter((f) => !f.includes('/.'))
+          .map((f) => {
+            let value = null;
+            let path = f.replace('src/public/', '');
+
+            if (f.includes('.css')) {
+              value = fs.readFileSync(f, { encoding: 'utf8' });
+            }
+            if (f.includes('.js')) {
+              value = fs.readFileSync(f, { encoding: 'utf8' });
+            }
+
+            return {
+              id: f.split('/').pop(),
+              path: path,
+              value: value,
+            };
+          })
+      );
+    });
   } catch (error) {
     console.log(error);
     res.status(404).json({
@@ -181,7 +209,7 @@ router.get('/files', auth, function (req, res, next) {
 
 router.post('/files', auth, function (req, res, next) {
   try {
-    res.json(true);
+    res, json(true);
   } catch (error) {
     console.log(error);
     res.status(404).json({

@@ -5,8 +5,8 @@ src/template/*
 src/components/*
 !src/components/.gitkeep
 
-#src/public/*
-#!src/public/.gitkeep
+src/public/*
+!src/public/.gitkeep
 
 db.json
 package-lock.json
