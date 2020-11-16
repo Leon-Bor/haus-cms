@@ -6,6 +6,7 @@ var logger = require('morgan');
 var cors = require('cors');
 require('dotenv').config();
 var indexRouter = require('./routes/index');
+var cmsRouter = require('./routes/cms');
 var nunjucks = require('nunjucks');
 var busboy = require('connect-busboy');
 
@@ -32,6 +33,7 @@ app.use(express.static(path.join(__dirname, './src/public')));
 app.use(express.static(path.join(__dirname, './public')));
 
 app.use('/', indexRouter);
+app.use('/cms', cmsRouter);
 
 // app.all('/*', async (req, res, next) => {
 //   try {

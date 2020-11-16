@@ -78,23 +78,18 @@ db.defaults({ innerHTML: {} }).write();
 //   }
 // });
 
-function findIndexHtml() {
+function findIndexHtml(fromPath = './dist/template') {
   return new Promise((res, rej) => {
-    const finder = findit('./dist/template');
+    const finder = findit(fromPath);
     finder.on('directory', function (dir, stat, stop) {
       var base = path.basename(dir);
       if (base === '.git' || base === 'node_modules') stop();
-      // else console.log(dir + '/');
     });
 
     finder.on('file', function (file, stat) {
       if (!file.includes('__MACOSX') && file.includes('index.html')) {
         res(file);
       }
-    });
-
-    finder.on('link', function (link, stat) {
-      // console.log(link);
     });
   });
 }
@@ -104,6 +99,11 @@ function copyHtmlFiles(fromPath, toPath) {
 
   return new Promise((res, rej) => {
     const finder = findit(fromPath);
+
+    finder.on('directory', function (dir, stat, stop) {
+      var base = path.basename(dir);
+      if (base === '.git' || base === 'node_modules') stop();
+    });
 
     finder.on('file', function (file, stat) {
       if (!file.includes('__MACOSX') && file.endsWith('.html')) {
@@ -123,6 +123,11 @@ function copyAssetFiles(fromPath, toPath) {
 
   return new Promise((res, rej) => {
     const finder = findit(fromPath);
+
+    finder.on('directory', function (dir, stat, stop) {
+      var base = path.basename(dir);
+      if (base === '.git' || base === 'node_modules') stop();
+    });
 
     finder.on('file', function (file, stat) {
       if (!file.includes('__MACOSX') && !file.endsWith('.html') && !file.includes('/.')) {

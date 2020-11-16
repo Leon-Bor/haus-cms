@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "init": "node init/init.js",
-    "start": "node ./bin/www",
+    "start": "nodemon ./bin/www",
     "build": "npm run git && npm run update-server",
     "test": "ng test",
     "lint": "ng lint",
