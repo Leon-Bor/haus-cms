@@ -14,7 +14,7 @@ function findParentDiv(e, lvl = 0) {
     e.setAttribute('data-haus', '');
   } else {
     if (e.rawTagName == 'body') {
-      console.log('No parent div found for element.');
+      // console.log('No parent div found for element.');
     } else {
       findParentDiv(e.parentNode, lvl + 1);
     }
@@ -23,7 +23,7 @@ function findParentDiv(e, lvl = 0) {
 
 function removeNestedEditors(e, lvl = 0) {
   if (e.rawTagName == 'body') {
-    console.log('No parent editor found.');
+    // console.log('No parent editor found.');
     return true;
   } else {
     e.removeAttribute('data-haus');

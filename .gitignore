@@ -1,6 +1,6 @@
 
-src/template/*
-!src/template/.gitkeep
+src/templates/*
+!src/templates/.gitkeep
 
 src/components/*
 !src/components/.gitkeep
