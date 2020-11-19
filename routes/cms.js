@@ -39,6 +39,7 @@ router.get('/templates', auth, function (req, res, next) {
           return {
             id: f,
             value: file,
+            type: 'template',
           };
         });
       res.json(files);
@@ -68,6 +69,7 @@ router.get('/templates/:templateName', auth, function (req, res, next) {
     res.json({
       id: req.params.templateName,
       value: file,
+      type: 'template',
     });
   } catch (error) {
     console.log(error);
@@ -110,6 +112,7 @@ router.get('/components', auth, function (req, res, next) {
           return {
             id: f,
             value: file,
+            type: 'component',
           };
         });
       res.json(files);
@@ -138,6 +141,7 @@ router.get('/components/:componentName', auth, function (req, res, next) {
     res.json({
       id: req.params.templateName,
       value: file,
+      type: 'component',
     });
   } catch (error) {
     console.log(error);
@@ -195,6 +199,7 @@ router.get('/files', auth, function (req, res, next) {
               id: f.split('/').pop(),
               path: path,
               value: value,
+              type: 'file',
             };
           })
       );

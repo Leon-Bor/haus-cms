@@ -4,6 +4,9 @@ src/templates/*
 
 src/components/*
 !src/components/.gitkeep
+!src/components/body-after.html
+!src/components/body-before.html
+!src/components/head.html
 
 src/public/*
 !src/public/.gitkeep
