@@ -15,7 +15,8 @@ const uuid = require('uuid');
 var spinner = new Spinner('processing.. %s');
 spinner.setSpinnerString('|/-\\');
 
-function delay(t, val) {
+const defualtDelay = 100;
+function delay(t = defualtDelay, val) {
   return new Promise(function (resolve) {
     setTimeout(function () {
       resolve(val);
@@ -35,7 +36,7 @@ async function init() {
   ]);
 
   spinner.start();
-  await delay(1000);
+  await delay();
   spinner.stop(true);
 
   const domain = await inquirer.prompt([
@@ -48,7 +49,7 @@ async function init() {
   ]);
 
   spinner.start();
-  await delay(1000);
+  await delay();
   spinner.stop(true);
 
   const template = await inquirer.prompt([
@@ -64,24 +65,49 @@ async function init() {
   ]);
 
   spinner.start();
-  await delay(1000);
+  await delay();
   if (template.template == true) {
     try {
+      if (fs.existsSync('./src/templates/index.html')) fs.unlinkSync('./src/templates/index.html');
       fs.copyFileSync('./init/index.html', './src/templates/index.html', COPYFILE_EXCL);
-      fs.copyFileSync('./init/background-2.jpg', './src/public/background-2.jpg', COPYFILE_EXCL);
-      fs.copyFileSync('./init/background.jpg', './src/public/background.jpg', COPYFILE_EXCL);
+
+      if (fs.existsSync('./src/public/main.js')) fs.unlinkSync('./src/public/main.js');
       fs.copyFileSync('./init/main.js', './src/public/main.js', COPYFILE_EXCL);
+
+      if (fs.existsSync('./src/public/styles.css')) fs.unlinkSync('./src/public/styles.css');
       fs.copyFileSync('./init/styles.css', './src/public/styles.css', COPYFILE_EXCL);
-      htmlFindInlineEditor.parse();
-      htmlAddInlineEditor.parse();
+
+      if (fs.existsSync('./src/public/background-2.jpg')) fs.unlinkSync('./src/public/background-2.jpg');
+      fs.copyFileSync('./init/background-2.jpg', './src/public/background-2.jpg', COPYFILE_EXCL);
+
+      if (fs.existsSync('./src/public/background.jpg')) fs.unlinkSync('./src/public/background.jpg');
+      fs.copyFileSync('./init/background.jpg', './src/public/background.jpg', COPYFILE_EXCL);
+
+      if (fs.existsSync('./src/public/favicon.png')) fs.unlinkSync('./src/public/favicon.png');
+      fs.copyFileSync('./init/favicon.png', './src/public/favicon.png', COPYFILE_EXCL);
+
+      await htmlFindInlineEditor.parse();
+      await htmlAddInlineEditor.parse();
       spinner.stop(true);
     } catch (error) {
       spinner.stop(true);
       console.log('> Warning: File "index.html: already exits in "src" folder');
-      htmlFindInlineEditor.parse();
-      htmlAddInlineEditor.parse();
+      await htmlFindInlineEditor.parse();
+      await htmlAddInlineEditor.parse();
     }
   }
+
+  const autoUpdate = await inquirer.prompt([
+    {
+      type: 'list',
+      name: 'autoUpdate',
+      message: 'Do you want to update the Haus CMS automatically?',
+      choices: [
+        { name: 'Yes', value: true, checked: true },
+        { name: 'No', value: false, checked: false },
+      ],
+    },
+  ]);
 
   const analytics = await inquirer.prompt([
     {
@@ -96,13 +122,15 @@ async function init() {
   ]);
 
   spinner.start();
-  await delay(1000);
+  await delay();
   const key = uuid.v4();
   try {
-    const env = `editKey=${key}
+    const env = `
+    editKey=${key}
     title=${title.title}
     domain=${domain.domain}
-    analytics=${analytics.analytics}`;
+    analytics=${analytics.analytics}
+    autoUpdate=${autoUpdate.autoUpdate}`;
     fs.writeFileSync('.env', env);
     spinner.stop(true);
     console.log('> Generated .env file.');
@@ -121,13 +149,13 @@ async function init() {
     console.log('---------------------------------------------------');
     console.log('');
     console.log('');
-    await delay(2000);
+    await delay();
     console.log('> Copy and save this key in a secure location.');
-    await delay(2000);
+    await delay();
     console.log('');
     console.log('');
     spinner.start();
-    await delay(3000);
+    await delay();
     spinner.stop(true);
     console.log('> All done. Now start the Haus CMS with "npm start"');
     console.log('');

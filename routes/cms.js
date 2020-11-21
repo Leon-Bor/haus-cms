@@ -8,11 +8,169 @@ var findit = require('findit');
 var path = require('path');
 const fs = require('fs');
 const auth = require('../middleware/auth');
+var rimraf = require('rimraf');
+const fsp = require('fs').promises;
 
 const adapter = new FileSync('db.json');
 const db = low(adapter);
 const Schema = require('validate');
 const { map } = require('../app');
+
+function findIndexHtml(fromPath = path.join(__dirname, '../dist/template.zip')) {
+  return new Promise((res, rej) => {
+    const finder = findit(fromPath);
+    finder.on('directory', function (dir, stat, stop) {
+      var base = path.basename(dir);
+      if (base === '.git' || base === 'node_modules') stop();
+    });
+
+    finder.on('file', function (file, stat) {
+      if (!file.includes('__MACOSX') && file.includes('index.html')) {
+        res(file);
+      }
+    });
+  });
+}
+
+function copyHtmlFiles(fromPath, toPath) {
+  const { COPYFILE_EXCL } = fs.constants;
+
+  return new Promise((res, rej) => {
+    const finder = findit(fromPath);
+
+    finder.on('directory', function (dir, stat, stop) {
+      var base = path.basename(dir);
+      if (base === '.git' || base === 'node_modules') stop();
+    });
+
+    finder.on('file', function (file, stat) {
+      if (!file.includes('__MACOSX') && file.endsWith('.html')) {
+        console.log('copy fileÖ', file);
+        fs.copyFileSync(file, `${toPath}/${file.replace(/^.*[\\\/]/, '')}`, COPYFILE_EXCL);
+      }
+    });
+
+    finder.on('end', function () {
+      res();
+    });
+  });
+}
+
+function copyAssetFiles(fromPath, toPath) {
+  const { COPYFILE_EXCL } = fs.constants;
+
+  return new Promise((res, rej) => {
+    const finder = findit(fromPath);
+
+    finder.on('directory', function (dir, stat, stop) {
+      var base = path.basename(dir);
+      if (base === '.git' || base === 'node_modules') stop();
+    });
+
+    finder.on('file', function (file, stat) {
+      if (!file.includes('__MACOSX') && !file.endsWith('.html') && !file.includes('/.')) {
+        console.log('file', file, `${toPath}${file.replace(fromPath, '')}`);
+        var fileData = fs.readFileSync(file, 'utf8');
+
+        let pathArray = `${toPath}${file.replace(fromPath, '')}`.split('/');
+        pathArray.pop();
+        console.log(pathArray);
+        pathArray.reduce((pre, cur) => {
+          if (!fs.existsSync(pre + cur)) {
+            fs.mkdirSync(pre + cur, { recursive: true });
+          }
+          return pre + cur + '/';
+        }, '');
+
+        fs.writeFileSync(`${toPath}${file.replace(fromPath, '')}`, fileData);
+      }
+    });
+
+    finder.on('end', function () {
+      res();
+    });
+  });
+}
+
+function removeDir(path) {
+  return new Promise((res) => {
+    rimraf(path, function (e) {
+      console.log('Deleted folder ' + path);
+      console.log(e);
+      res();
+    });
+  });
+}
+
+function clearSrcFolder() {
+  return new Promise(async (res) => {
+    const srcPath = path.join(__dirname, '../src');
+    console.log('remove current template');
+    await fsp.rmdir(srcPath, { recursive: true });
+    fs.mkdirSync(srcPath);
+    fs.mkdirSync(srcPath + '/components');
+    fs.mkdirSync(srcPath + '/public');
+    fs.mkdirSync(srcPath + '/templates');
+
+    fs.writeFileSync(srcPath + '/components/.gitkeep');
+    fs.writeFileSync(srcPath + '/public/.gitkeep');
+    fs.writeFileSync(srcPath + '/templates/.gitkeep');
+
+    res();
+  });
+}
+
+function copyTemplateToFolders() {
+  return new Promise(async (res) => {
+    const file = await findIndexHtml();
+    await clearSrcFolder();
+    await copyHtmlFiles(file.substring(0, file.lastIndexOf('/')), './test123');
+    await copyAssetFiles(file.substring(0, file.lastIndexOf('/')), '../src/assets');
+    res();
+  });
+}
+
+// files
+
+router.post('/upload-template', async function (req, res, next) {
+  var fstream;
+  try {
+    if (req.busboy) {
+      if (fs.existsSync(path.join(__dirname, '../dist/template'))) await removeDir(path.join(__dirname, '../dist/template'));
+      if (fs.existsSync(path.join(__dirname, '../dist/template.zip'))) fs.unlinkSync(path.join(__dirname, '../dist/template.zip'));
+
+      console.log('busboy');
+      req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        fstream = fs.createWriteStream(path.join(__dirname, '../dist/template.zip'));
+        file.pipe(fstream);
+        fstream.on('close', () => {
+          console.log('file ' + filename + ' uploaded');
+          try {
+            fs.createReadStream(path.join(__dirname, '../dist/template.zip'))
+              .pipe(unzipper.Extract({ path: path.join(__dirname, '../dist/template') }))
+              .on('finish', async () => {
+                console.log('Finish file upload: success');
+                // await copyTemplateToFolders();
+              })
+              .on('error', async (e) => {
+                console.log('Finish file upload: error');
+                // await copyTemplateToFolders();
+              });
+          } catch (error) {
+            console.log(error);
+          }
+        });
+      });
+      req.busboy.on('finish', async (fieldname, file, filename, encoding, mimetype) => {
+        console.log('upload finish');
+        res.json({ success: true });
+      });
+      req.pipe(req.busboy);
+    }
+  } catch (error) {
+    console.log(error);
+  }
+});
 
 // AUTH
 
@@ -23,6 +181,28 @@ router.get('/auth', auth, function (req, res, next) {
     console.log(error);
     res.status(409).json({
       message: 'Not authorized.',
+    });
+  }
+});
+
+// CONTENT
+
+router.post('/content', async (req, res, next) => {
+  try {
+    if (process.env.editKey === req.query.editKey) {
+      Object.keys(req.body).map(async (k) => {
+        await db.set(`innerHTML.${k}`, req.body[k]).write();
+      });
+
+      res.json(true);
+    } else {
+      res.status(400).send({
+        message: 'No or wrong edit key provided.',
+      });
+    }
+  } catch (error) {
+    res.status(500).send({
+      message: 'Internal server error.',
     });
   }
 });

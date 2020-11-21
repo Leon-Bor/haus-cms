@@ -128,3 +128,27 @@ button {
   align-items: center;
   justify-content: center;
 }
+.error {
+  color: red;
+  text-align: center;
+  display: none;
+  margin-top: 0px;
+  font-size: 14px;
+}
+.next-step {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+}
+.next-step svg {
+  width: 100px;
+  height: 100px;
+}
+
+.next-step p {
+  font-size: 14px;
+}
+
+a {
+  color: #1e8ffe;
+}

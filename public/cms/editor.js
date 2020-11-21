@@ -34,28 +34,28 @@ console.log('Edit', edit);
 if (edit == 'true') {
   var link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = '/haus-assets/content-tools.min.css';
+  link.href = '/cms/content-tools.min.css';
   document.head.appendChild(link);
 
   var link3 = document.createElement('link');
   link3.rel = 'stylesheet';
-  link3.href = '/haus-assets/haus-globals.css';
+  link3.href = '/cms/haus-globals.css';
   document.head.appendChild(link3);
 
   var script = document.createElement('script');
-  script.src = '/haus-assets/content-tools.min.js';
+  script.src = '/cms/content-tools.min.js';
   document.body.appendChild(script);
-}
 
-window.addEventListener('load', function () {
-  var editor;
-  console.log('editor launched');
-  editor = ContentTools.EditorApp.get();
-  editor.init('*[data-editable]', 'data-haus-id');
+  window.addEventListener('load', function () {
+    var editor;
+    console.log('editor launched');
+    editor = ContentTools.EditorApp.get();
+    editor.init('*[data-editable]', 'data-haus-id');
 
-  editor.addEventListener('saved', function (ev) {
-    console.log(ev.detail());
+    editor.addEventListener('saved', function (ev) {
+      console.log(ev.detail());
 
-    post(`/haus/?editKey=${localStorage.getItem('haus-editKey')}`, ev.detail().regions);
+      post(`/cms/content?editKey=${localStorage.getItem('haus-editKey')}`, ev.detail().regions);
+    });
   });
-});
+}
