@@ -37,6 +37,7 @@
     "dotenv": "^8.2.0",
     "ejs": "~2.5.7",
     "express": "~4.16.0",
+    "express-fileupload": "^1.2.0",
     "findit": "^2.0.0",
     "http-errors": "~1.6.2",
     "inquirer": "^7.3.3",

@@ -101,7 +101,7 @@ router.get('/:templateName', async (req, res, next) => {
   try {
     const templateName = req.params.templateName || 'index';
     const { edit = 'false', editKey = null } = req.query;
-    res.render('index.nunjucks', { templateName: '../dist/' + templateName + '.generated.nunjucks' });
+    res.render('index.nunjucks', { templateName: '../dist/' + templateName + '.generated.nunjucks', data: db.get('innerHTML').value() });
   } catch (error) {
     console.log(error);
   }

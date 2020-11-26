@@ -8,7 +8,7 @@ require('dotenv').config();
 var indexRouter = require('./routes/index');
 var cmsRouter = require('./routes/cms');
 var nunjucks = require('nunjucks');
-var busboy = require('connect-busboy');
+const fileUpload = require('express-fileupload');
 
 var app = express();
 
@@ -22,13 +22,19 @@ nunjucks.configure(['views', 'dist'], {
 // app.set('views', path.join(__dirname, 'views'));
 // app.set('template', path.join(__dirname, 'src'));
 app.set('view engine', 'html');
+app.disable('etag');
 
-app.use(cors());
+app.use(cors({ credentials: true, origin: 'http://localhost:4200' }));
+app.use(
+  fileUpload({
+    createParentPath: true,
+  })
+);
 app.use(logger('dev'));
-app.use(busboy({ immediate: true }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
+
 app.use(express.static(path.join(__dirname, './src/public')));
 app.use(express.static(path.join(__dirname, './public')));
 

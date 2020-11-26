@@ -16,19 +16,26 @@ const db = low(adapter);
 const Schema = require('validate');
 const { map } = require('../app');
 
-function findIndexHtml(fromPath = path.join(__dirname, '../dist/template.zip')) {
-  return new Promise((res, rej) => {
-    const finder = findit(fromPath);
-    finder.on('directory', function (dir, stat, stop) {
-      var base = path.basename(dir);
-      if (base === '.git' || base === 'node_modules') stop();
-    });
+const htmlAddInlineEditor = require('../parser/html-add-inline-editor');
+const htmlFindInlineEditor = require('../parser/html-find-inline-editor');
 
-    finder.on('file', function (file, stat) {
-      if (!file.includes('__MACOSX') && file.includes('index.html')) {
-        res(file);
-      }
-    });
+function findIndexHtml(fromPath = path.join(__dirname, '../dist/template')) {
+  return new Promise((res, rej) => {
+    try {
+      const finder = findit(fromPath);
+      finder.on('directory', function (dir, stat, stop) {
+        var base = path.basename(dir);
+        if (base === '.git' || base === 'node_modules') stop();
+      });
+
+      finder.on('file', function (file, stat) {
+        if (!file.includes('__MACOSX') && file.includes('index.html')) {
+          res(file);
+        }
+      });
+    } catch (error) {
+      rej(error);
+    }
   });
 }
 
@@ -36,139 +43,208 @@ function copyHtmlFiles(fromPath, toPath) {
   const { COPYFILE_EXCL } = fs.constants;
 
   return new Promise((res, rej) => {
-    const finder = findit(fromPath);
+    try {
+      const finder = findit(fromPath);
 
-    finder.on('directory', function (dir, stat, stop) {
-      var base = path.basename(dir);
-      if (base === '.git' || base === 'node_modules') stop();
-    });
+      finder.on('directory', function (dir, stat, stop) {
+        var base = path.basename(dir);
+        if (base === '.git' || base === 'node_modules') stop();
+      });
 
-    finder.on('file', function (file, stat) {
-      if (!file.includes('__MACOSX') && file.endsWith('.html')) {
-        console.log('copy fileÖ', file);
-        fs.copyFileSync(file, `${toPath}/${file.replace(/^.*[\\\/]/, '')}`, COPYFILE_EXCL);
-      }
-    });
+      finder.on('file', function (file, stat) {
+        if (!file.includes('__MACOSX') && file.endsWith('.html')) {
+          console.log('copy fileÖ', file);
+          fs.copyFileSync(file, path.join(__dirname + `${toPath}/${file.replace(/^.*[\\\/]/, '')}`), COPYFILE_EXCL);
+        }
+      });
 
-    finder.on('end', function () {
-      res();
-    });
+      finder.on('end', function () {
+        res();
+      });
+    } catch (error) {
+      rej(error);
+    }
   });
 }
 
-function copyAssetFiles(fromPath, toPath) {
+function copyAssetFiles(fromPath, toPath, indexFile) {
   const { COPYFILE_EXCL } = fs.constants;
 
   return new Promise((res, rej) => {
-    const finder = findit(fromPath);
+    try {
+      const finder = findit(fromPath);
 
-    finder.on('directory', function (dir, stat, stop) {
-      var base = path.basename(dir);
-      if (base === '.git' || base === 'node_modules') stop();
-    });
+      finder.on('directory', function (dir, stat, stop) {
+        var base = path.basename(dir);
+        if (base === '.git' || base === 'node_modules') stop();
+      });
 
-    finder.on('file', function (file, stat) {
-      if (!file.includes('__MACOSX') && !file.endsWith('.html') && !file.includes('/.')) {
-        console.log('file', file, `${toPath}${file.replace(fromPath, '')}`);
-        var fileData = fs.readFileSync(file, 'utf8');
+      finder.on('file', function (file, stat) {
+        try {
+          if (!file.includes('__MACOSX') && !file.endsWith('.html') && !file.includes('/.')) {
+            var fileName = file.replace(/^.*[\\\/]/, '');
+            const indexPath = indexFile.replace('/index.html', '');
+            let templateFilePath = file.replace(indexPath, '').replace(fileName, '');
 
-        let pathArray = `${toPath}${file.replace(fromPath, '')}`.split('/');
-        pathArray.pop();
-        console.log(pathArray);
-        pathArray.reduce((pre, cur) => {
-          if (!fs.existsSync(pre + cur)) {
-            fs.mkdirSync(pre + cur, { recursive: true });
+            fs.mkdirSync(path.join(__dirname + toPath + templateFilePath), { recursive: true });
+            fs.copyFileSync(file, `${path.join(__dirname + toPath)}${file.replace(fromPath, '')}`, COPYFILE_EXCL);
           }
-          return pre + cur + '/';
-        }, '');
+        } catch (error) {
+          console.log(error);
+        }
+      });
 
-        fs.writeFileSync(`${toPath}${file.replace(fromPath, '')}`, fileData);
-      }
-    });
-
-    finder.on('end', function () {
-      res();
-    });
+      finder.on('end', function () {
+        res();
+      });
+    } catch (error) {
+      rej(error);
+    }
   });
 }
 
 function removeDir(path) {
-  return new Promise((res) => {
-    rimraf(path, function (e) {
-      console.log('Deleted folder ' + path);
-      console.log(e);
-      res();
-    });
+  return new Promise((res, rej) => {
+    try {
+      rimraf(path, function (e) {
+        console.log('Deleted folder ' + path);
+        console.log(e);
+        res();
+      });
+    } catch (error) {
+      rej(error);
+    }
   });
 }
 
 function clearSrcFolder() {
-  return new Promise(async (res) => {
-    const srcPath = path.join(__dirname, '../src');
-    console.log('remove current template');
-    await fsp.rmdir(srcPath, { recursive: true });
-    fs.mkdirSync(srcPath);
-    fs.mkdirSync(srcPath + '/components');
-    fs.mkdirSync(srcPath + '/public');
-    fs.mkdirSync(srcPath + '/templates');
+  return new Promise(async (res, rej) => {
+    try {
+      const srcPath = path.join(__dirname, '../src');
+      console.log('remove current template');
+      await fsp.rmdir(srcPath, { recursive: true });
+      fs.mkdirSync(srcPath);
+      fs.mkdirSync(srcPath + '/components');
+      fs.mkdirSync(srcPath + '/public');
+      fs.mkdirSync(srcPath + '/templates');
 
-    fs.writeFileSync(srcPath + '/components/.gitkeep');
-    fs.writeFileSync(srcPath + '/public/.gitkeep');
-    fs.writeFileSync(srcPath + '/templates/.gitkeep');
+      fs.writeFileSync(srcPath + '/components/.gitkeep');
+      fs.writeFileSync(srcPath + '/public/.gitkeep');
+      fs.writeFileSync(srcPath + '/templates/.gitkeep');
 
-    res();
+      res();
+    } catch (error) {
+      rej(error);
+    }
   });
 }
 
 function copyTemplateToFolders() {
-  return new Promise(async (res) => {
-    const file = await findIndexHtml();
-    await clearSrcFolder();
-    await copyHtmlFiles(file.substring(0, file.lastIndexOf('/')), './test123');
-    await copyAssetFiles(file.substring(0, file.lastIndexOf('/')), '../src/assets');
-    res();
+  return new Promise(async (res, rej) => {
+    try {
+      console.log('start copyTemplateToFolders');
+      const indexFile = await findIndexHtml();
+      console.log('index file ', indexFile);
+      await clearSrcFolder();
+      await copyHtmlFiles(indexFile.substring(0, indexFile.lastIndexOf('/')), '/../src/templates');
+      await copyAssetFiles(indexFile.substring(0, indexFile.lastIndexOf('/')), '/../src/public', indexFile);
+
+      await htmlFindInlineEditor.parse();
+      await htmlAddInlineEditor.parse();
+      res();
+    } catch (error) {
+      rej(error);
+    }
   });
 }
 
 // files
-
+// router.options('/upload-template', async function (req, res, next) {
+//   res.status(200).send(err);
+// });
 router.post('/upload-template', async function (req, res, next) {
-  var fstream;
-  try {
-    if (req.busboy) {
-      if (fs.existsSync(path.join(__dirname, '../dist/template'))) await removeDir(path.join(__dirname, '../dist/template'));
-      if (fs.existsSync(path.join(__dirname, '../dist/template.zip'))) fs.unlinkSync(path.join(__dirname, '../dist/template.zip'));
+  // var fstream;
+  // try {
+  //   if (req.busboy) {
+  //     if (fs.existsSync(path.join(__dirname, '../dist/template'))) await removeDir(path.join(__dirname, '../dist/template'));
+  //     if (fs.existsSync(path.join(__dirname, '../dist/template.zip'))) fs.unlinkSync(path.join(__dirname, '../dist/template.zip'));
 
-      console.log('busboy');
-      req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        fstream = fs.createWriteStream(path.join(__dirname, '../dist/template.zip'));
-        file.pipe(fstream);
-        fstream.on('close', () => {
-          console.log('file ' + filename + ' uploaded');
-          try {
-            fs.createReadStream(path.join(__dirname, '../dist/template.zip'))
-              .pipe(unzipper.Extract({ path: path.join(__dirname, '../dist/template') }))
-              .on('finish', async () => {
-                console.log('Finish file upload: success');
-                // await copyTemplateToFolders();
-              })
-              .on('error', async (e) => {
-                console.log('Finish file upload: error');
-                // await copyTemplateToFolders();
-              });
-          } catch (error) {
-            console.log(error);
-          }
+  //     console.log('busboy');
+
+  //     req.pipe(req.busboy);
+  //     req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+  //       fstream = fs.createWriteStream(path.join(__dirname, '../dist/template.zip'));
+  //       file.pipe(fstream);
+  //       fstream.on('close', () => {
+  //         console.log('file ' + filename + ' uploaded');
+  //         try {
+  //           fs.createReadStream(path.join(__dirname, '../dist/template.zip'))
+  //             .pipe(unzipper.Extract({ path: path.join(__dirname, '../dist/template') }))
+  //             .on('finish', async () => {
+  //               console.log('Finish file upload: success');
+  //               // await copyTemplateToFolders();
+
+  //               res.json({ success: true });
+  //             })
+  //             .on('error', async (e) => {
+  //               console.log('Finish file upload: error');
+  //               // await copyTemplateToFolders();
+
+  //               res.json({ success: true });
+  //             });
+  //         } catch (error) {
+  //           console.log(error);
+  //         }
+  //       });
+  //     });
+  //     req.busboy.on('finish', async (fieldname, file, filename, encoding, mimetype) => {
+  //       console.log('upload finish');
+  //     });
+  //   }
+  // } catch (error) {
+  //   console.log(error);
+  // }
+
+  try {
+    console.log(req.files);
+    if (!req.files) {
+      res.status(404).send({
+        status: false,
+        message: 'No file uploaded',
+      });
+    } else {
+      //Use the name of the input field (i.e. "avatar") to retrieve the uploaded file
+      let template = req.files.file;
+      console.log('before move');
+
+      //Use the mv() method to place the file in upload directory (i.e. "uploads")
+      template.mv(path.join(__dirname, '../dist/template.zip'));
+      console.log('after move');
+      //send response
+
+      setTimeout(() => {
+        var stream = fs
+          .createReadStream(path.join(__dirname, '../dist/template.zip'))
+          .pipe(unzipper.Extract({ path: path.join(__dirname, '../dist/template') }));
+
+        stream.on('finish', function () {
+          console.log('Finish unzip');
+          copyTemplateToFolders();
         });
+      }, 2000);
+
+      res.send({
+        status: true,
+        message: 'File is uploaded',
+        data: {
+          name: template.name,
+          mimetype: template.mimetype,
+          size: template.size,
+        },
       });
-      req.busboy.on('finish', async (fieldname, file, filename, encoding, mimetype) => {
-        console.log('upload finish');
-        res.json({ success: true });
-      });
-      req.pipe(req.busboy);
     }
-  } catch (error) {
-    console.log(error);
+  } catch (err) {
+    res.status(500).send(err);
   }
 });
 
@@ -187,7 +263,7 @@ router.get('/auth', auth, function (req, res, next) {
 
 // CONTENT
 
-router.post('/content', async (req, res, next) => {
+router.post('/content', auth, async (req, res, next) => {
   try {
     if (process.env.editKey === req.query.editKey) {
       Object.keys(req.body).map(async (k) => {
