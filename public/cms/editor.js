@@ -18,6 +18,7 @@ function post(path, data) {
   var xhr = new XMLHttpRequest();
   xhr.open('POST', path);
   xhr.setRequestHeader('Content-Type', 'application/json');
+  xhr.setRequestHeader('Authorization', localStorage.getItem('haus-editKey'));
   xhr.onload = function () {
     if (xhr.status === 200) {
       var userInfo = JSON.parse(xhr.responseText);
@@ -55,7 +56,7 @@ if (edit == 'true') {
     editor.addEventListener('saved', function (ev) {
       console.log(ev.detail());
 
-      post(`/cms/content?editKey=${localStorage.getItem('haus-editKey')}`, ev.detail().regions);
+      post(`/cms/content`, ev.detail().regions);
     });
   });
 }

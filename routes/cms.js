@@ -158,53 +158,7 @@ function copyTemplateToFolders() {
   });
 }
 
-// files
-// router.options('/upload-template', async function (req, res, next) {
-//   res.status(200).send(err);
-// });
 router.post('/upload-template', async function (req, res, next) {
-  // var fstream;
-  // try {
-  //   if (req.busboy) {
-  //     if (fs.existsSync(path.join(__dirname, '../dist/template'))) await removeDir(path.join(__dirname, '../dist/template'));
-  //     if (fs.existsSync(path.join(__dirname, '../dist/template.zip'))) fs.unlinkSync(path.join(__dirname, '../dist/template.zip'));
-
-  //     console.log('busboy');
-
-  //     req.pipe(req.busboy);
-  //     req.busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-  //       fstream = fs.createWriteStream(path.join(__dirname, '../dist/template.zip'));
-  //       file.pipe(fstream);
-  //       fstream.on('close', () => {
-  //         console.log('file ' + filename + ' uploaded');
-  //         try {
-  //           fs.createReadStream(path.join(__dirname, '../dist/template.zip'))
-  //             .pipe(unzipper.Extract({ path: path.join(__dirname, '../dist/template') }))
-  //             .on('finish', async () => {
-  //               console.log('Finish file upload: success');
-  //               // await copyTemplateToFolders();
-
-  //               res.json({ success: true });
-  //             })
-  //             .on('error', async (e) => {
-  //               console.log('Finish file upload: error');
-  //               // await copyTemplateToFolders();
-
-  //               res.json({ success: true });
-  //             });
-  //         } catch (error) {
-  //           console.log(error);
-  //         }
-  //       });
-  //     });
-  //     req.busboy.on('finish', async (fieldname, file, filename, encoding, mimetype) => {
-  //       console.log('upload finish');
-  //     });
-  //   }
-  // } catch (error) {
-  //   console.log(error);
-  // }
-
   try {
     console.log(req.files);
     if (!req.files) {
@@ -265,17 +219,11 @@ router.get('/auth', auth, function (req, res, next) {
 
 router.post('/content', auth, async (req, res, next) => {
   try {
-    if (process.env.editKey === req.query.editKey) {
-      Object.keys(req.body).map(async (k) => {
-        await db.set(`innerHTML.${k}`, req.body[k]).write();
-      });
+    Object.keys(req.body).map(async (k) => {
+      await db.set(`innerHTML.${k}`, req.body[k]).write();
+    });
 
-      res.json(true);
-    } else {
-      res.status(400).send({
-        message: 'No or wrong edit key provided.',
-      });
-    }
+    res.json(true);
   } catch (error) {
     res.status(500).send({
       message: 'Internal server error.',
