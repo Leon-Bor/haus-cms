@@ -22,7 +22,7 @@ nunjucks.configure(['views', 'dist'], {
 // app.set('views', path.join(__dirname, 'views'));
 // app.set('template', path.join(__dirname, 'src'));
 app.set('view engine', 'html');
-app.set('etag', false);
+// app.set('etag', false);
 app.use(cors({ credentials: true, origin: 'http://localhost:4200' }));
 app.use(
   fileUpload({

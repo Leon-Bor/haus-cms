@@ -258,6 +258,22 @@ router.get('/templates', auth, function (req, res, next) {
 
 router.post('/templates', auth, function (req, res, next) {
   try {
+    if (!req.body.id) {
+      res.status(500).json({
+        message: 'Missing file id',
+      });
+      return;
+    }
+
+    let filename = req.body.id;
+
+    if (!filename.endsWith('.html')) {
+      filename = filename + '.html';
+    }
+
+    filename = filename.replace(/\s/g, '-');
+
+    fs.writeFileSync(`./src/templates/${filename}`, '');
     res.json(true);
   } catch (error) {
     console.log(error);
@@ -285,6 +301,7 @@ router.get('/templates/:templateName', auth, function (req, res, next) {
 
 router.patch('/templates/:templateName', auth, function (req, res, next) {
   try {
+    fs.writeFileSync(`./src/templates/${req.params.templateName}`, req.body.value);
     res.json(true);
   } catch (error) {
     console.log(error);
@@ -330,6 +347,22 @@ router.get('/components', auth, function (req, res, next) {
 
 router.post('/components', auth, function (req, res, next) {
   try {
+    if (!req.body.id) {
+      res.status(500).json({
+        message: 'Missing file id',
+      });
+      return;
+    }
+
+    let filename = req.body.id;
+
+    if (!filename.endsWith('.html')) {
+      filename = filename + '.html';
+    }
+
+    filename = filename.replace(/\s/g, '-');
+
+    fs.writeFileSync(`./src/components/${filename}`, '');
     res.json(true);
   } catch (error) {
     console.log(error);
@@ -357,6 +390,7 @@ router.get('/components/:componentName', auth, function (req, res, next) {
 
 router.patch('/components/:componentName', auth, function (req, res, next) {
   try {
+    fs.writeFileSync(`./src/components/${req.params.componentName}`, req.body.value);
     res.json(true);
   } catch (error) {
     console.log(error);
@@ -418,7 +452,26 @@ router.get('/files', auth, function (req, res, next) {
 
 router.post('/files', auth, function (req, res, next) {
   try {
-    res, json(true);
+    if (!req.body.id) {
+      res.status(500).json({
+        message: 'Missing file id',
+      });
+      return;
+    }
+
+    let filename = req.body.id;
+
+    filename = filename.replace(/\s/g, '-');
+
+    if (!filename.includes('.')) {
+      res.status(500).json({
+        message: 'Missing file extension',
+      });
+      return;
+    }
+
+    fs.writeFileSync(`./src/components/${filename}`, '');
+    res.json(true);
   } catch (error) {
     console.log(error);
     res.status(404).json({
@@ -440,6 +493,7 @@ router.get('/files/:fileName', auth, function (req, res, next) {
 
 router.patch('/files/:fileName', auth, function (req, res, next) {
   try {
+    fs.writeFileSync(`./src/files/${req.params.fileName}`, req.body.value);
     res.json(true);
   } catch (error) {
     console.log(error);
