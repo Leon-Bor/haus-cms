@@ -10,6 +10,7 @@ const fs = require('fs');
 const auth = require('../middleware/auth');
 var rimraf = require('rimraf');
 const fsp = require('fs').promises;
+const slash = require('slash');
 
 const adapter = new FileSync('db.json');
 const db = low(adapter);
@@ -42,6 +43,7 @@ function findIndexHtml(fromPath = path.join(__dirname, '../dist/template')) {
 function copyHtmlFiles(fromPath, toPath) {
   const { COPYFILE_EXCL } = fs.constants;
 
+  console.log(`Copy html files from ${fromPath} to ${toPath}`);
   return new Promise((res, rej) => {
     try {
       const finder = findit(fromPath);
@@ -53,7 +55,7 @@ function copyHtmlFiles(fromPath, toPath) {
 
       finder.on('file', function (file, stat) {
         if (!file.includes('__MACOSX') && file.endsWith('.html')) {
-          console.log('copy fileÖ', file);
+          console.log('copy html file: ', file);
           fs.copyFileSync(file, path.join(__dirname + `${toPath}/${file.replace(/^.*[\\\/]/, '')}`), COPYFILE_EXCL);
         }
       });
@@ -70,6 +72,7 @@ function copyHtmlFiles(fromPath, toPath) {
 function copyAssetFiles(fromPath, toPath, indexFile) {
   const { COPYFILE_EXCL } = fs.constants;
 
+  console.log(`Copy html files from ${fromPath} to ${toPath}`);
   return new Promise((res, rej) => {
     try {
       const finder = findit(fromPath);
@@ -83,10 +86,14 @@ function copyAssetFiles(fromPath, toPath, indexFile) {
         try {
           if (!file.includes('__MACOSX') && !file.endsWith('.html') && !file.includes('/.')) {
             var fileName = file.replace(/^.*[\\\/]/, '');
+            console.log('copy asset file: ', file);
+            file = slash(file);
             const indexPath = indexFile.replace('/index.html', '');
             let templateFilePath = file.replace(indexPath, '').replace(fileName, '');
 
-            fs.mkdirSync(path.join(__dirname + toPath + templateFilePath), { recursive: true });
+            fs.mkdirSync(path.join(__dirname + toPath + templateFilePath), {
+              recursive: true,
+            });
             fs.copyFileSync(file, `${path.join(__dirname + toPath)}${file.replace(fromPath, '')}`, COPYFILE_EXCL);
           }
         } catch (error) {
@@ -122,7 +129,7 @@ function clearSrcFolder() {
     try {
       const srcPath = path.join(__dirname, '../src');
       console.log('remove current template');
-      await fsp.rmdir(srcPath, { recursive: true });
+      await removeDir(srcPath);
       fs.mkdirSync(srcPath);
       fs.mkdirSync(srcPath + '/components');
       fs.mkdirSync(srcPath + '/public');
@@ -134,6 +141,7 @@ function clearSrcFolder() {
 
       res();
     } catch (error) {
+      console.log(error);
       rej(error);
     }
   });
@@ -143,7 +151,7 @@ function copyTemplateToFolders() {
   return new Promise(async (res, rej) => {
     try {
       console.log('start copyTemplateToFolders');
-      const indexFile = await findIndexHtml();
+      const indexFile = slash(await findIndexHtml());
       console.log('index file ', indexFile);
       await clearSrcFolder();
       await copyHtmlFiles(indexFile.substring(0, indexFile.lastIndexOf('/')), '/../src/templates');
@@ -219,7 +227,7 @@ router.get('/auth', auth, function (req, res, next) {
 
 router.post('/content', auth, async (req, res, next) => {
   try {
-    Object.keys(req.body).map(async (k) => {
+    Object.keys(req.body).map(async k => {
       await db.set(`innerHTML.${k}`, req.body[k]).write();
     });
 
@@ -237,9 +245,11 @@ router.get('/templates', auth, function (req, res, next) {
   try {
     fs.readdir(`./src/templates`, (err, files) => {
       files = files
-        .filter((f) => f.endsWith('.html'))
-        .map((f) => {
-          const file = fs.readFileSync(`./src/templates/${f}`, { encoding: 'utf8' });
+        .filter(f => f.endsWith('.html'))
+        .map(f => {
+          const file = fs.readFileSync(`./src/templates/${f}`, {
+            encoding: 'utf8',
+          });
           return {
             id: f,
             value: file,
@@ -285,7 +295,9 @@ router.post('/templates', auth, function (req, res, next) {
 
 router.get('/templates/:templateName', auth, function (req, res, next) {
   try {
-    const file = fs.readFileSync(`./src/templates/${req.params.templateName}`, { encoding: 'utf8' });
+    const file = fs.readFileSync(`./src/templates/${req.params.templateName}`, {
+      encoding: 'utf8',
+    });
     res.json({
       id: req.params.templateName,
       value: file,
@@ -327,9 +339,11 @@ router.get('/components', auth, function (req, res, next) {
   try {
     fs.readdir(`./src/components`, (err, files) => {
       files = files
-        .filter((f) => f.endsWith('.html'))
-        .map((f) => {
-          const file = fs.readFileSync(`./src/components/${f}`, { encoding: 'utf8' });
+        .filter(f => f.endsWith('.html'))
+        .map(f => {
+          const file = fs.readFileSync(`./src/components/${f}`, {
+            encoding: 'utf8',
+          });
           return {
             id: f,
             value: file,
@@ -421,8 +435,8 @@ router.get('/files', auth, function (req, res, next) {
     finder.on('end', function (file, stat) {
       res.json(
         files
-          .filter((f) => !f.includes('/.'))
-          .map((f) => {
+          .filter(f => !f.includes('/.'))
+          .map(f => {
             let value = null;
             let path = f.replace('src/public/', '');
 
