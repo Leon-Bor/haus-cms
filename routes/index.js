@@ -33,7 +33,10 @@ router.get('/', async (req, res, next) => {
     db.read();
     const templateName = 'index';
     console.log(db.get('innerHTML').value()['tWGnLfmAgognpWff8mpVKf']);
-    res.render('index.nunjucks', { templateName: '../dist/' + templateName + '.generated.nunjucks', data: db.get('innerHTML').value() });
+    res.render('index.nunjucks', {
+      templateName: '../dist/' + templateName + '.generated.nunjucks',
+      data: db.get('innerHTML').value(),
+    });
   } catch (error) {
     console.log(error);
   }
@@ -41,8 +44,14 @@ router.get('/', async (req, res, next) => {
 router.get('/:templateName', async (req, res, next) => {
   try {
     db.read();
-    const templateName = req.params.templateName || 'index';
-    res.render('index.nunjucks', { templateName: '../dist/' + templateName + '.generated.nunjucks', data: db.get('innerHTML').value() });
+    let templateName = req.params.templateName || 'index';
+    templateName = templateName.replace('.html', '').replace('.htm', '');
+
+    console.log('GET PAGE ', templateName);
+    res.render('index.nunjucks', {
+      templateName: '../dist/' + templateName + '.generated.nunjucks',
+      data: db.get('innerHTML').value(),
+    });
   } catch (error) {
     console.log(error);
   }

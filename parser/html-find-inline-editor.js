@@ -31,9 +31,9 @@ function removeNestedEditors(e, lvl = 0) {
   }
 }
 
-exports.parse = function () {
-  return new Promise((res) => {
-    fs.readFile('src/templates/index.html', 'utf8', function (err, data) {
+exports.parse = function (templateName = 'index') {
+  return new Promise(res => {
+    fs.readFile(`src/templates/${templateName}.html`, 'utf8', function (err, data) {
       if (err) throw err;
       // console.log(data);
 
@@ -58,19 +58,21 @@ exports.parse = function () {
       const span = root.querySelectorAll('span') || [];
       const button = root.querySelectorAll('button') || [];
       const label = root.querySelectorAll('label') || [];
-      const elements = [...p, ...h1, ...h2, ...h3, ...h4, ...h5, ...h6, ...span, ...button, ...label];
+      const li = root.querySelectorAll('li') || [];
+      const elements = [...p, ...h1, ...h2, ...h3, ...h4, ...h5, ...h6, ...span, ...button, ...label, ...li];
 
-      elements.map((e) => {
+      elements.map(e => {
         findParentDiv(e);
       });
 
       const hausElements = root.querySelectorAll('[data-haus]') || [];
 
-      hausElements.map((e) => {
+      hausElements.map(e => {
         removeNestedEditors(e.parentNode);
       });
 
-      fs.writeFileSync('src/templates/index.html', root.toString());
+      fs.writeFileSync(`src/templates/${templateName}.html`, root.toString());
+      console.log('Found inline editors in: ' + templateName + '.html');
       res();
     });
   });

@@ -1,5 +1,5 @@
 const fs = require('fs');
-const htmlAddInlineEditor = require('../parser/html-add-inline-editor');
+const htmlToTemplate = require('../parser/html-to-template');
 const htmlFindInlineEditor = require('../parser/html-find-inline-editor');
 
 if (!fs.existsSync('node_modules')) {
@@ -87,13 +87,13 @@ async function init() {
       fs.copyFileSync('./init/favicon.png', './src/public/favicon.png', COPYFILE_EXCL);
 
       await htmlFindInlineEditor.parse();
-      await htmlAddInlineEditor.parse();
+      await htmlToTemplate.parse();
       spinner.stop(true);
     } catch (error) {
       spinner.stop(true);
       console.log('> Warning: File "index.html: already exits in "src" folder');
       await htmlFindInlineEditor.parse();
-      await htmlAddInlineEditor.parse();
+      await htmlToTemplate.parse();
     }
   }
 

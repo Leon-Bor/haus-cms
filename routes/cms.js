@@ -17,7 +17,7 @@ const db = low(adapter);
 const Schema = require('validate');
 const { map } = require('../app');
 
-const htmlAddInlineEditor = require('../parser/html-add-inline-editor');
+const htmlToTemplate = require('../parser/html-to-template');
 const htmlFindInlineEditor = require('../parser/html-find-inline-editor');
 
 function findIndexHtml(fromPath = path.join(__dirname, '../dist/template')) {
@@ -158,7 +158,7 @@ function copyTemplateToFolders() {
       await copyAssetFiles(indexFile.substring(0, indexFile.lastIndexOf('/')), '/../src/public', indexFile);
 
       await htmlFindInlineEditor.parse();
-      await htmlAddInlineEditor.parse();
+      await htmlToTemplate.parse();
       res();
     } catch (error) {
       rej(error);
@@ -228,6 +228,7 @@ router.get('/auth', auth, function (req, res, next) {
 router.post('/content', auth, async (req, res, next) => {
   try {
     Object.keys(req.body).map(async k => {
+      db.read();
       await db.set(`innerHTML.${k}`, req.body[k]).write();
     });
 
@@ -284,6 +285,7 @@ router.post('/templates', auth, function (req, res, next) {
     filename = filename.replace(/\s/g, '-');
 
     fs.writeFileSync(`./src/templates/${filename}`, '');
+
     res.json(true);
   } catch (error) {
     console.log(error);
@@ -311,9 +313,10 @@ router.get('/templates/:templateName', auth, function (req, res, next) {
   }
 });
 
-router.patch('/templates/:templateName', auth, function (req, res, next) {
+router.patch('/templates/:templateName', auth, async function (req, res, next) {
   try {
     fs.writeFileSync(`./src/templates/${req.params.templateName}`, req.body.value);
+    await htmlToTemplate.parse();
     res.json(true);
   } catch (error) {
     console.log(error);
@@ -359,7 +362,7 @@ router.get('/components', auth, function (req, res, next) {
   }
 });
 
-router.post('/components', auth, function (req, res, next) {
+router.post('/components', auth, async function (req, res, next) {
   try {
     if (!req.body.id) {
       res.status(500).json({
@@ -377,6 +380,8 @@ router.post('/components', auth, function (req, res, next) {
     filename = filename.replace(/\s/g, '-');
 
     fs.writeFileSync(`./src/components/${filename}`, '');
+
+    await htmlToTemplate.parse();
     res.json(true);
   } catch (error) {
     console.log(error);
@@ -402,9 +407,10 @@ router.get('/components/:componentName', auth, function (req, res, next) {
   }
 });
 
-router.patch('/components/:componentName', auth, function (req, res, next) {
+router.patch('/components/:componentName', auth, async function (req, res, next) {
   try {
     fs.writeFileSync(`./src/components/${req.params.componentName}`, req.body.value);
+    await htmlToTemplate.parse();
     res.json(true);
   } catch (error) {
     console.log(error);
