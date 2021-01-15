@@ -1,0 +1,248 @@
+<html>
+  <head>
+    <title>⌂ Haus CMS</title>
+    <link rel="stylesheet" href="styles.css" />
+    <link rel="icon" type="image/png" href="/favicon.png" sizes="128x128" />
+    <script
+      src="https://code.jquery.com/jquery-3.5.1.min.js"
+      integrity="sha256-9/aliU8dGd2tb6OSsuzixeV4y/faTqgFtohetphbbj0="
+      crossorigin="anonymous"
+    ></script>
+    <link rel="preconnect" href="https://fonts.gstatic.com" />
+    <link href="https://fonts.googleapis.com/css2?family=Open+Sans:wght@300;400;600&display=swap" rel="stylesheet" />
+    <style>
+      @keyframes start-animation {
+        0% {
+          transform: scale(1);
+        }
+        60% {
+          opacity: 1;
+        }
+        80% {
+          transform: scale(35);
+          opacity: 0.5;
+        }
+        100% {
+          opacity: 0;
+        }
+      }
+      @keyframes show-page {
+        0% {
+          opacity: 0;
+        }
+        100% {
+          opacity: 1;
+        }
+      }
+      @keyframes no-scroll {
+        0% {
+          overflow: hidden;
+        }
+        100% {
+          overflow-y: auto;
+        }
+      }
+      body {
+        padding: 0;
+        margin: 0;
+        overflow: auto;
+        background-color: black;
+        color: white;
+        background-image: url('background-2.jpg');
+        background-size: cover;
+        background-position: center center;
+        font-family: 'Open Sans', sans-serif, Arial;
+        animation-name: no-scroll;
+        animation-duration: 0.1s;
+        animation-delay: 4s;
+        animation-fill-mode: forwards;
+        overflow: hidden;
+      }
+      h1 {
+        font-size: 120px;
+        font-weight: 300;
+        font-family: 'Open Sans', sans-serif, Arial;
+        margin: 0;
+      }
+      h2 {
+        font-size: 24px;
+        margin: 0;
+      }
+      p {
+        text-align: center;
+        margin-top: 15px;
+        margin-bottom: 15px;
+      }
+      .intro {
+        background-image: url('background.jpg');
+        background-size: cover;
+        background-position: center center;
+        height: 100%;
+        animation-name: start-animation;
+        animation-duration: 2s;
+        animation-delay: 2s;
+        animation-timing-function: ease-in;
+        animation-fill-mode: forwards;
+        position: absolute;
+        pointer-events: none;
+        top: 0;
+        width: 100vw;
+        height: 100vh;
+        overflow: hidden;
+      }
+      .page {
+        display: flex;
+        justify-content: center;
+        padding-left: 10px;
+        padding-right: 10px;
+        min-height: 100vh;
+        align-items: center;
+      }
+      .container {
+        opacity: 0;
+        animation-name: show-page;
+        animation-duration: 1s;
+        animation-delay: 3.9s;
+        animation-timing-function: ease-in;
+        animation-fill-mode: forwards;
+        max-width: 500px;
+        display: flex;
+        align-items: center;
+        flex-direction: column;
+        padding-bottom: 5vh;
+      }
+      label {
+        margin-top: 15px;
+        text-transform: uppercase;
+        opacity: 0.66;
+        font-size: 12px;
+      }
+      input {
+        padding: 15px 20px;
+        border-radius: 10px;
+        width: 320px;
+        margin-top: 15px;
+        margin-bottom: 25px;
+      }
+
+      button {
+        padding: 10px 20px;
+        border-radius: 5px;
+        background-color: dodgerblue;
+        color: white;
+        text-transform: uppercase;
+        border: 0;
+        outline: 0;
+        cursor: pointer;
+      }
+      .form {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+      }
+      .error {
+        color: red;
+        text-align: center;
+        display: none;
+        margin-top: 0px;
+        font-size: 14px;
+      }
+      .next-step {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+      }
+      .next-step svg {
+        width: 100px;
+        height: 100px;
+      }
+
+      .next-step p {
+        font-size: 14px;
+      }
+
+      a {
+        color: #1e8ffe;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="intro"></div>
+    <div class="page">
+      <div class="container">
+        <h1>⌂</h1>
+        <div>
+          <h2>Content Management</h2>
+        </div>
+        <div>
+          <p>
+            It seems like you were successful in setting up the Haus CMS. Now add you key to the box below and upload your template.
+          </p>
+        </div>
+        <div class="form">
+          <label>Enter your CMS key</label>
+          <input placeholder="XXXXXXXX-XXXX-XXXX-XXXX-XXXXXXXXXXXX" />
+          <p class="error error-missing-key">Please enter a key</p>
+          <p class="error error-invalid-key">The provided key was invalid</p>
+          <button class="submit-key">Let's go</button>
+        </div>
+        <div class="next-step">
+          <svg xmlns="http://www.w3.org/2000/svg" x="0px" y="0px" viewBox="0 0 512 512">
+            <path
+              style="fill: #a5eb78;"
+              d="M433.139,67.108L201.294,298.953c-6.249,6.249-16.381,6.249-22.63,0L78.861,199.15L0,278.011
+l150.547,150.549c10.458,10.458,24.642,16.333,39.431,16.333l0,0c14.788,0,28.973-5.876,39.43-16.333L512,145.968L433.139,67.108z"
+            />
+            <g style="opacity: 0.1;">
+              <path
+                d="M485.921,119.888L187.59,418.22c-8.254,8.253-18.633,13.882-29.847,16.391c9.363,6.635,20.608,10.28,32.235,10.28l0,0
+ c14.788,0,28.973-5.876,39.43-16.333L512,145.966L485.921,119.888z"
+              />
+            </g>
+          </svg>
+
+          <p>
+            You entered a valid editKey. <br />
+            Now upload you custom template in the &nbsp;<a href="/cms">Editor.</a>
+          </p>
+        </div>
+      </div>
+    </div>
+    <script>
+      $(document).ready(function () {
+        function checkKeyRequest() {
+          $('.error-missing-key').hide();
+          $('.error-invalid-key').hide();
+          $.ajax({
+            url: '/cms/auth',
+            type: 'GET',
+            beforeSend: function (xhr) {
+              xhr.setRequestHeader('authorization', $('input').val());
+            },
+            success: function () {
+              $('.form').hide();
+              $('.next-step').show();
+              $('.next-step').css('display', 'flex');
+            },
+            error: function (params) {
+              $('.error-invalid-key').show();
+            },
+          });
+        }
+
+        if (localStorage.getItem('haus-adminToken')) {
+          checkKeyRequest();
+        }
+
+        $('.submit-key').click(function (el) {
+          if (!$('input').val()) {
+            $('.error-missing-key').show();
+          } else {
+            checkKeyRequest();
+          }
+        });
+      });
+    </script>
+  </body>
+</html>
