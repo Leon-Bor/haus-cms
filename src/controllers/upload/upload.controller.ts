@@ -3,6 +3,8 @@ import { FileInterceptor } from '@nestjs/platform-express';
 import { join } from 'path';
 import * as dotenv from 'dotenv';
 import { diskStorage } from 'multer';
+import { createReadStream } from 'fs';
+import * as unzipper from 'unzipper';
 
 let env = dotenv.config().parsed;
 @Controller(env?.adminPath)
@@ -32,6 +34,16 @@ export class UploadController {
   @Post('upload-template')
   uploadTemplate(@UploadedFile() file) {
     console.log(file);
+    console.log(join(__dirname, '..', '..', 'uploads', 'template.zip'));
+
+    const stream = createReadStream(join(__dirname, '..', '..', 'uploads', 'template.zip')).pipe(
+      unzipper.Extract({ path: join(__dirname, '..', '..', 'uploads', 'template') })
+    );
+
+    stream.on('finish', function () {
+      console.log('Finish unzip');
+      // copyTemplateToFolders();
+    });
   }
 
   @UseInterceptors(
@@ -42,7 +54,7 @@ export class UploadController {
     })
   )
   @Get('upload-file')
-  uploadFile(@UploadedFile() file) {
+  async uploadFile(@UploadedFile() file) {
     console.log(file);
   }
 }
