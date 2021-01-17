@@ -4,6 +4,7 @@ import { rmdir, mkdir, readdir, copyFile } from 'fs/promises';
 import { existsSync } from 'fs';
 import { HtmlParserService } from '../html-parser/html-parser.service';
 import { DatabaseService } from '../database/database.service';
+import { TemplateService } from '../template/template.service';
 
 const slash = require('slash');
 
@@ -13,7 +14,11 @@ export class FileService {
   indexFile: string = null;
   indexFilePath: string = null;
 
-  constructor(private htmlParserService: HtmlParserService, private databaseService: DatabaseService) {}
+  constructor(
+    private htmlParserService: HtmlParserService,
+    private databaseService: DatabaseService,
+    private templateService: TemplateService
+  ) {}
 
   async getFilesRecursive(dir) {
     // from: https://stackoverflow.com/a/45130990/4337791
@@ -69,15 +74,7 @@ export class FileService {
         for (let index = 0; index < assets.length; index++) {
           await this.copyFile(
             assets[index],
-            join(
-              __dirname,
-              '..',
-              '..',
-              'website',
-              'assets',
-              ...slash(assets[index].replace(this.indexFilePath, '')).split('/'),
-              basename(assets[index])
-            )
+            join(__dirname, '..', '..', 'website', 'assets', ...slash(assets[index].replace(this.indexFilePath, '')).split('/'))
           );
         }
 
@@ -86,6 +83,7 @@ export class FileService {
         for (let index = 0; index < pages.length; index++) {
           await this.htmlParserService.addIdAttribute(basename(pages[index]));
           await this.htmlParserService.addImgAttribute(basename(pages[index]));
+          await this.templateService.createTemplate(basename(pages[index]));
         }
       } catch (error) {
         rej(error);

@@ -18,7 +18,7 @@ export class DatabaseService {
     this.db
       .defaults({
         content: {
-          images: {},
+          image: {},
           innerHtml: {},
         },
         analytics: {},
@@ -40,12 +40,12 @@ export class DatabaseService {
 
   getItem(item): any {
     this.db.read();
-    return this.db.get(item);
+    return this.db.get(item).value();
   }
 
   clearContent(): void {
     this.db.set(`content.innerHtml`, {}).write();
-    this.db.set(`content.images`, {}).write();
+    this.db.set(`content.image`, {}).write();
   }
 
   addInnerHtml(id, html): void {

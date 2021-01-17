@@ -3,10 +3,10 @@ import { join, resolve, basename } from 'path';
 import { readFile, writeFile } from 'fs/promises';
 import { load, html } from 'cheerio';
 import { parseDocument } from 'htmlparser2';
-import { nanoid } from 'nanoid';
 import { DatabaseService } from '../database/database.service';
+import { customAlphabet } from 'nanoid';
+const nanoid = customAlphabet('1234567890abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ', 24);
 
-const htmlparser2 = require('htmlparser2');
 @Injectable()
 export class HtmlParserService {
   editableTag = ['a', 'li', 'h1', 'h2', 'h3', 'h4', 'h5', 'h6', 'span', 'label', 'td', 'p'];

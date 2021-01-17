@@ -1,6 +1,7 @@
 import { Injectable } from '@nestjs/common';
 import * as path from 'path';
 import * as nunjucks from 'nunjucks';
+import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class ViewService {
@@ -10,11 +11,16 @@ export class ViewService {
     // using `watch: true` would block closing the application for the tests
   });
 
-  constructor() {
-    console.log(path.join(__dirname));
-  }
+  constructor(private databaseService: DatabaseService) {}
 
   render(name, data = {}) {
-    return this.njk.render(`${name}.njk`, data);
+    console.log(path.join(__dirname, '..', '..', 'views'), `${name}.njk`);
+    console.log(this.databaseService.getItem('content.innerHtml'));
+    return this.njk.render(`${name}.njk`, {
+      ...data,
+      language: 'de',
+      image: this.databaseService.getItem('content.image'),
+      innerHtml: this.databaseService.getItem('content.innerHtml'),
+    });
   }
 }

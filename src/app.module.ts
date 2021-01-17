@@ -14,10 +14,10 @@ import { HtmlParserService } from './services/html-parser/html-parser.service';
 
 @Module({
   imports: [
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, '..', 'client'),
-      serveRoot: process.env?.adminPath,
-    }),
+    // ServeStaticModule.forRoot({
+    //   rootPath: join(__dirname, '..', 'client'),
+    //   serveRoot: process.env?.adminPath,
+    // }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'website', 'assets'),
     }),
