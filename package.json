@@ -27,13 +27,16 @@
     "@nestjs/serve-static": "^2.1.4",
     "@nestjs/websockets": "^7.6.5",
     "@types/lowdb": "^1.0.9",
+    "cheerio": "^1.0.0-rc.5",
     "dotenv": "^8.2.0",
+    "htmlparser2": "^6.0.0",
     "lowdb": "^1.0.0",
     "nanoid": "^3.1.20",
     "nunjucks": "^3.2.2",
     "reflect-metadata": "^0.1.13",
     "rimraf": "^3.0.2",
     "rxjs": "^6.6.3",
+    "slash": "^3.0.0",
     "unzipper": "^0.10.11"
   },
   "devDependencies": {

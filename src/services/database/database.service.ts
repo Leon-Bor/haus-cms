@@ -1,18 +1,16 @@
 import { Injectable } from '@nestjs/common';
 import * as low from 'lowdb';
+import { Settings } from '../../models/classes/settings.model';
 import { IDatabase } from '../../models/interfaces/database.interface';
-const FileAsync = require('lowdb/adapters/FileAsync');
+const FileSync = require('lowdb/adapters/FileSync');
 
 @Injectable()
 export class DatabaseService {
-  adapter = null;
-  db: low.LowdbAsync<IDatabase> = null;
+  db = null;
+
   constructor() {
-    this.adapter = new FileAsync('db.json');
-    low(this.adapter).then((db) => {
-      this.db = db;
-      this.setDefaults();
-    });
+    this.db = low(new FileSync('db.json'));
+    this.setDefaults();
   }
 
   setDefaults(): void {
@@ -31,14 +29,36 @@ export class DatabaseService {
           domain: process.env?.enableAutoUpdates,
           enableAnalytics: !!process.env?.enableAnalytics,
           enableAutoUpdates: !!process.env?.enableAutoUpdates,
+          enableI18n: false,
+          i18nLanguages: [],
+          defaultLanguage: 'de',
           editor: {},
         },
       })
       .write();
   }
 
-  async getItem(item): Promise<any> {
-    await this.db.read();
+  getItem(item): any {
+    this.db.read();
     return this.db.get(item);
+  }
+
+  clearContent(): void {
+    this.db.set(`content.innerHtml`, {}).write();
+    this.db.set(`content.images`, {}).write();
+  }
+
+  addInnerHtml(id, html): void {
+    const settings: Settings = this.getItem('settings');
+    const defaultLanguage = settings?.defaultLanguage || 'de';
+    this.db.read();
+    this.db.set(`content.innerHtml.${id}`, { [defaultLanguage]: html }).write();
+  }
+
+  addImage(id, src): void {
+    const settings: Settings = this.getItem('settings');
+    const defaultLanguage = settings?.defaultLanguage || 'de';
+    this.db.read();
+    this.db.set(`content.image.${id}`, { src }).write();
   }
 }

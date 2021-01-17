@@ -32,7 +32,7 @@ export class AuthGateway {
             data: new SocketMessage<any>({
               data: {
                 isAuthenticated: true,
-                settings: await this.databaseService.getItem('settings'),
+                settings: this.databaseService.getItem('settings'),
               },
             }),
           };

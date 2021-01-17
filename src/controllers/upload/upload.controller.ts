@@ -5,12 +5,13 @@ import * as dotenv from 'dotenv';
 import { diskStorage } from 'multer';
 import { createReadStream } from 'fs';
 import * as unzipper from 'unzipper';
+import { FileService } from '../../services/file/file.service';
 
 let env = dotenv.config().parsed;
 @Controller(env?.adminPath)
 export class UploadController {
   private logger: Logger = new Logger('UploadController');
-  constructor() {
+  constructor(private fileService: FileService) {
     this.logger.log('test');
   }
 
@@ -33,16 +34,12 @@ export class UploadController {
   )
   @Post('upload-template')
   uploadTemplate(@UploadedFile() file) {
-    console.log(file);
-    console.log(join(__dirname, '..', '..', 'uploads', 'template.zip'));
-
     const stream = createReadStream(join(__dirname, '..', '..', 'uploads', 'template.zip')).pipe(
       unzipper.Extract({ path: join(__dirname, '..', '..', 'uploads', 'template') })
     );
 
-    stream.on('finish', function () {
-      console.log('Finish unzip');
-      // copyTemplateToFolders();
+    stream.on('finish', async () => {
+      await this.fileService.copyTemplateToWebsite();
     });
   }
 
