@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, HttpStatus, Param } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Param, Query } from '@nestjs/common';
 import { TemplateService } from '../../services/template/template.service';
 import { ViewService } from '../../services/view/view.service';
 
@@ -7,10 +7,11 @@ export class WebsiteController {
   constructor(private viewService: ViewService) {}
 
   @Get()
-  getIndex(): string {
+  getIndex(@Query() query: any): string {
+    const { edit = false } = query;
     try {
       console.log('get website');
-      return this.viewService.render('index');
+      return this.viewService.renderPage('index', { edit: !!edit });
     } catch {
       return this.viewService.render('error-404');
     }

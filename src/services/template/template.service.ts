@@ -8,7 +8,7 @@ import { DatabaseService } from '../database/database.service';
 
 @Injectable()
 export class TemplateService {
-  constructor() {}
+  constructor(private databaseService: DatabaseService) {}
 
   async createTemplate(pageName = 'index.html') {
     const pagePath = join(__dirname, '..', '..', 'website', 'pages', pageName);
@@ -23,6 +23,15 @@ export class TemplateService {
     $('[data-haus-img]').each((i, element) => {
       $(element).attr('src', `{{ image.${$(element).attr('data-haus-img')}.src | safe }}`);
     });
+
+    const templateEditorHtml = await readFile(join(__dirname, 'template-editor.html'));
+
+    $('body').append(`
+        {% if edit %}
+        <script>window.hausSettings={{settings | safe}};</script>
+        ${templateEditorHtml}
+        {% endif %}  
+    `);
 
     await writeFile(templatePath, $.html());
   }

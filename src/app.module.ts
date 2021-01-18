@@ -11,7 +11,6 @@ import { TemplateService } from './services/template/template.service';
 import { ViewService } from './services/view/view.service';
 import { PageService } from './services/page/page.service';
 import { HtmlParserService } from './services/html-parser/html-parser.service';
-
 @Module({
   imports: [
     // ServeStaticModule.forRoot({
@@ -20,6 +19,7 @@ import { HtmlParserService } from './services/html-parser/html-parser.service';
     // }),
     ServeStaticModule.forRoot({
       rootPath: join(__dirname, 'website', 'assets'),
+      serveStaticOptions: { fallthrough: false },
     }),
     MulterModule.register({
       dest: join(__dirname),

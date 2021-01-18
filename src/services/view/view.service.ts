@@ -14,13 +14,18 @@ export class ViewService {
   constructor(private databaseService: DatabaseService) {}
 
   render(name, data = {}) {
-    console.log(path.join(__dirname, '..', '..', 'views'), `${name}.njk`);
-    console.log(this.databaseService.getItem('content.innerHtml'));
+    return this.njk.render(`${name}.njk`, {
+      ...data,
+    });
+  }
+
+  renderPage(name, data = {}) {
     return this.njk.render(`${name}.njk`, {
       ...data,
       language: 'de',
       image: this.databaseService.getItem('content.image'),
       innerHtml: this.databaseService.getItem('content.innerHtml'),
+      settings: JSON.stringify(this.databaseService.getItem('settings')),
     });
   }
 }
