@@ -55,6 +55,11 @@ export class DatabaseService {
     this.db.set(`content.innerHtml.${id}`, { [defaultLanguage]: html }).write();
   }
 
+  updateInnerHtml(id, html, language = 'de'): void {
+    this.db.read();
+    this.db.set(`content.innerHtml.${id}`, { [language]: html }).write();
+  }
+
   addImage(id, src): void {
     const settings: Settings = this.getItem('settings');
     const defaultLanguage = settings?.defaultLanguage || 'de';

@@ -11,21 +11,18 @@ import { TemplateService } from './services/template/template.service';
 import { ViewService } from './services/view/view.service';
 import { PageService } from './services/page/page.service';
 import { HtmlParserService } from './services/html-parser/html-parser.service';
+import { AdminController } from './controllers/admin/admin.controller';
 @Module({
   imports: [
     // ServeStaticModule.forRoot({
     //   rootPath: join(__dirname, '..', 'client'),
-    //   serveRoot: process.env?.adminPath,
+    //   renderPath: process.env?.adminPath,
     // }),
-    ServeStaticModule.forRoot({
-      rootPath: join(__dirname, 'website', 'assets'),
-      serveStaticOptions: { fallthrough: false },
-    }),
     MulterModule.register({
       dest: join(__dirname),
     }),
   ],
-  controllers: [UploadController, WebsiteController],
+  controllers: [UploadController, WebsiteController, AdminController],
   providers: [DatabaseService, TemplateService, ViewService, AuthGateway, FileService, PageService, HtmlParserService],
 })
 export class AppModule {}

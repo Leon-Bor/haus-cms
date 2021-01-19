@@ -54,14 +54,14 @@
 
   /* editable elements */
   [contenteditable]:hover {
-    background-color: rgba(243, 156, 18, 0.1);
+    background-color: rgba(243, 156, 18, 0.1) !important;
   }
   [imageeditable]:hover {
-    outline: rgba(243, 156, 18, 0.1) 3px solid;
+    outline: rgba(243, 156, 18, 0.1) 3px solid !important;
     cursor: pointer;
   }
   .haus-element--focused {
-    background-color: rgba(243, 156, 18, 0.1);
+    background-color: rgba(243, 156, 18, 0.1) !important;
     outline: none;
   }
 </style>
@@ -97,7 +97,7 @@
   </div>
 
   <div class="haus-actions">
-    <div class="haus-icon haus-language-icon">
+    <div class="haus-icon haus-language-icon haus-hide">
       <svg viewBox="0 0 512 512">
         <path
           d="M437.02,74.98C388.667,26.629,324.38,0,256,0S123.333,26.629,74.98,74.98C26.629,123.332,0,187.62,0,256
@@ -127,19 +127,53 @@
 </div>
 
 <script>
-  window.hausContent = {};
-  function resetTemplateEditor() {
-    $('.haus-edit-icon').removeClass('haus-hide');
-    $('.haus-language-icon').removeClass('haus-hide');
-    $('.haus-cancel-icon').addClass('haus-hide');
-    $('.haus-accept-icon').addClass('haus-hide');
+  window.hausContent = {
+    image: {},
+    innerHtml: {},
+  };
+  function hausEditor() {
+    function resetTemplateEditor() {
+      $('.haus-edit-icon').removeClass('haus-hide');
+      $('.haus-cancel-icon').addClass('haus-hide');
+      $('.haus-accept-icon').addClass('haus-hide');
 
-    $('[data-haus-id]').removeAttr('contenteditable');
-    console.log(window.hausContent);
-    window.hausContent = {};
-  }
-  function myJQueryCode() {
+      if (window.hausContent && window.hausContent.settings) {
+        if (window.hausContent.settings.enableI18n) {
+          $('.haus-language-icon').removeClass('haus-hide');
+        }
+      }
+
+      $('[data-haus-id]').removeAttr('contenteditable');
+      $('[data-haus-img]').removeAttr('imageeditable');
+      console.log(window.hausContent);
+      window.hausContent = {};
+    }
+
+    function sendContent() {
+      $.ajax({
+        type: 'POST',
+        //the url where you want to sent the userName and password to
+        url:
+          window.hausContent && window.hausContent.settings && window.hausContent.settings.adminPath
+            ? '/' + window.hausContent.settings.adminPath + '/content'
+            : '/haus-admin/content',
+        dataType: 'json',
+        async: false,
+        //json object to sent to the authentication url
+        data: window.hausContent,
+        success: function () {
+          console.log('Content succesfull');
+        },
+      });
+    }
+
     $(document).ready(() => {
+      // setup
+      resetTemplateEditor();
+
+      console.log(window.hausSettings);
+
+      // click events
       $('.haus-edit-icon').click(() => {
         $('.haus-edit-icon').addClass('haus-hide');
         $('.haus-language-icon').addClass('haus-hide');
@@ -151,7 +185,7 @@
 
         $('[data-haus-id]').on('input', function () {
           console.log('Content changed: ' + $(this).attr('data-haus-id'));
-          window.hausContent = { ...window.hausContent, [$(this).attr('data-haus-id')]: $(this).html() };
+          window.hausContent.innerHtml = { ...window.hausContent.innerHtml, [$(this).attr('data-haus-id')]: $(this).html() };
         });
         $('[data-haus-id]').on('focus', function () {
           $(this).addClass('haus-element--focused');
@@ -166,6 +200,7 @@
       });
 
       $('.haus-accept-icon').click(() => {
+        sendContent();
         resetTemplateEditor();
       });
     });
@@ -177,9 +212,9 @@
     var jqTag = document.createElement('script');
     jqTag.type = 'text/javascript';
     jqTag.src = 'https://code.jquery.com/jquery-3.5.1.min.js';
-    jqTag.onload = myJQueryCode;
+    jqTag.onload = hausEditor;
     headTag.appendChild(jqTag);
   } else {
-    myJQueryCode();
+    hausEditor();
   }
 </script>
