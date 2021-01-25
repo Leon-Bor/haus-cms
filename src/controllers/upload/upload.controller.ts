@@ -6,6 +6,8 @@ import { diskStorage } from 'multer';
 import { createReadStream } from 'fs';
 import * as unzipper from 'unzipper';
 import { FileService } from '../../services/file/file.service';
+import { rmdir, mkdir, readdir, copyFile } from 'fs/promises';
+import { existsSync } from 'fs';
 
 let env = dotenv.config().parsed;
 @Controller(env?.adminPath)
@@ -33,14 +35,23 @@ export class UploadController {
     })
   )
   @Post('upload-template')
-  uploadTemplate(@UploadedFile() file) {
-    const stream = createReadStream(join(__dirname, '..', '..', 'uploads', 'template.zip')).pipe(
-      unzipper.Extract({ path: join(__dirname, '..', '..', 'uploads', 'template') })
-    );
+  async uploadTemplate(@UploadedFile() file) {
+    console.log('upload-template');
+    try {
+      if (existsSync(join(__dirname, '..', '..', 'uploads', 'template'))) {
+        await rmdir(join(__dirname, '..', '..', 'uploads', 'template'), { recursive: true });
+      }
 
-    stream.on('finish', async () => {
-      await this.fileService.copyTemplateToWebsite();
-    });
+      const stream = createReadStream(join(__dirname, '..', '..', 'uploads', 'template.zip')).pipe(
+        unzipper.Extract({ path: join(__dirname, '..', '..', 'uploads', 'template') })
+      );
+
+      stream.on('finish', async () => {
+        await this.fileService.copyTemplateToWebsite();
+      });
+    } catch (error) {
+      console.log(error);
+    }
   }
 
   @UseInterceptors(

@@ -26,10 +26,17 @@ export class TemplateService {
 
     const templateEditorHtml = await readFile(join(__dirname, 'template-editor.html'));
 
+    $('head').append(`
+    {% if edit %} 
+    {% endif %}  
+    `);
+
     $('body').append(`
         {% if edit %}
-        <script>window.hausSettings={{settings | safe}};</script>
-        ${templateEditorHtml}
+        <script>window.hausSettings={{settings | safe}};</script> 
+        <div id="haus-content-editor"></div>
+        <script src="${process.env?.environment != 'prod' ? 'http://localhost:4000/' : ''}bundle.js" defer></script>
+ 
         {% endif %}  
     `);
 

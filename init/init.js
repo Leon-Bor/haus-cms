@@ -114,7 +114,7 @@ async function init() {
   const key = uuid.v4();
   try {
     const env = `
-    editKey=${key}
+    adminToken=${key}
     title=${title.title}
     domain=${domain.domain}
     analytics=${analytics.analytics}
