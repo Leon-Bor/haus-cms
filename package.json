@@ -28,6 +28,7 @@
     "@nestjs/websockets": "^7.6.5",
     "@types/lowdb": "^1.0.9",
     "cheerio": "^1.0.0-rc.5",
+    "cookie-parser": "^1.4.5",
     "dotenv": "^8.2.0",
     "htmlparser2": "^6.0.0",
     "lowdb": "^1.0.0",

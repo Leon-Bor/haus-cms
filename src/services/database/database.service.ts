@@ -56,6 +56,7 @@ export class DatabaseService {
   }
 
   updateInnerHtml(id, html, language = 'de'): void {
+    console.log(id, html);
     this.db.read();
     this.db.set(`content.innerHtml.${id}`, { [language]: html }).write();
   }

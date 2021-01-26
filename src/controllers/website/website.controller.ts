@@ -1,4 +1,4 @@
-import { Controller, Get, HttpException, HttpStatus, Param, Query, Response } from '@nestjs/common';
+import { Controller, Get, HttpException, HttpStatus, Param, Query, Req, Response } from '@nestjs/common';
 import { TemplateService } from '../../services/template/template.service';
 import { ViewService } from '../../services/view/view.service';
 
@@ -27,25 +27,28 @@ export class WebsiteController {
   }
 
   @Get()
-  getIndex(@Query() query: any): string {
+  getIndex(@Query() query: any, @Req() req): string {
     const { edit = false, language } = query;
+    const { hausEdit } = req.cookies;
     try {
       console.log('get website');
-      return this.viewService.renderPage('index', { edit: !!edit, language });
+      console.log();
+      return this.viewService.renderPage('index', { edit: edit == 'true' || hausEdit == 'true', language });
     } catch {
       return this.viewService.render('error-404');
     }
   }
 
   @Get(':page0/:page1?/:page2?/:page3?/:page4?')
-  getPage(@Param() params, @Query() query: any): string {
+  getPage(@Param() params, @Query() query: any, @Req() req): string {
     const { edit = false, language } = query;
+    const { hausEdit } = req.cookies;
     const { page0, page1, page2, page3, page4 } = params;
     const path = `${page0.replace('index.html', 'index')}${page1 ? '/' + page1 : ''}${page2 ? '/' + page2 : ''}${page3 ? '/' + page3 : ''}${
       page4 ? '/' + page4 : ''
     }`;
     try {
-      return this.viewService.renderPage(path, { edit: !!edit, language });
+      return this.viewService.renderPage(path, { edit: edit == 'true' || hausEdit == 'true', language });
     } catch {
       return this.viewService.render('error-404');
     }
