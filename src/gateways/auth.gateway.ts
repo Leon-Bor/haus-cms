@@ -1,5 +1,10 @@
 import { Logger } from '@nestjs/common';
-import { ConnectedSocket, MessageBody, SubscribeMessage, WebSocketGateway } from '@nestjs/websockets';
+import {
+  ConnectedSocket,
+  MessageBody,
+  SubscribeMessage,
+  WebSocketGateway,
+} from '@nestjs/websockets';
 import { SocketMessage } from '../models/classes/socket-message.model';
 import { SocketRoutes } from '../models/enums/socket-routes.enum';
 import { IClientSocket } from '../models/interfaces/client-socket.interface';
@@ -21,12 +26,16 @@ export class AuthGateway {
   }
 
   @SubscribeMessage(SocketRoutes.CS_AUTHENTICATE)
-  async handleMessage(@ConnectedSocket() client: IClientSocket, @MessageBody() m: SocketMessage<string>): Promise<any> {
+  async handleMessage(
+    @ConnectedSocket() client: IClientSocket,
+    @MessageBody() m: SocketMessage<string>,
+  ): Promise<any> {
     try {
       const adminToken = m.data;
       if (adminToken) {
         if (adminToken === process.env?.adminToken) {
           console.log(SocketRoutes.CS_AUTHENTICATE, true);
+          client.adminToken = adminToken;
           return {
             event: SocketRoutes.SC_AUTHENTICATE,
             data: new SocketMessage<any>({
@@ -37,13 +46,21 @@ export class AuthGateway {
             }),
           };
         } else {
-          return { event: SocketRoutes.SC_AUTHENTICATE, data: new SocketMessage<boolean>({ data: false }) };
+          return {
+            event: SocketRoutes.SC_AUTHENTICATE,
+            data: new SocketMessage<boolean>({ data: false }),
+          };
         }
       } else {
-        return { event: SocketRoutes.SC_AUTHENTICATE, data: new SocketMessage<boolean>({ data: false }) };
+        return {
+          event: SocketRoutes.SC_AUTHENTICATE,
+          data: new SocketMessage<boolean>({ data: false }),
+        };
       }
     } catch (e) {
-      this.logger.error(`Token validation failed: ${e.statusCode} ${e.message}`);
+      this.logger.error(
+        `Token validation failed: ${e.statusCode} ${e.message}`,
+      );
       return new SocketMessage<boolean>({ data: false });
     }
   }

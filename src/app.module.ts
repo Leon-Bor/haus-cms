@@ -8,10 +8,11 @@ import { AuthGateway } from './gateways/auth.gateway';
 import { FileService } from './services/file/file.service';
 import { DatabaseService } from './services/database/database.service';
 import { TemplateService } from './services/template/template.service';
-import { ViewService } from './services/view/view.service';
 import { PageService } from './services/page/page.service';
 import { HtmlParserService } from './services/html-parser/html-parser.service';
 import { AdminController } from './controllers/admin/admin.controller';
+import { RenderService } from './services/render/render.service';
+import { WebsiteEditorGateway } from './gateways/website-editor.gateway';
 @Module({
   imports: [
     // ServeStaticModule.forRoot({
@@ -23,6 +24,15 @@ import { AdminController } from './controllers/admin/admin.controller';
     }),
   ],
   controllers: [UploadController, WebsiteController, AdminController],
-  providers: [DatabaseService, TemplateService, ViewService, AuthGateway, FileService, PageService, HtmlParserService],
+  providers: [
+    DatabaseService,
+    TemplateService,
+    RenderService,
+    AuthGateway,
+    WebsiteEditorGateway,
+    FileService,
+    PageService,
+    HtmlParserService,
+  ],
 })
 export class AppModule {}

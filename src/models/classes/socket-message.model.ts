@@ -1,6 +1,6 @@
 export class SocketMessage<T> {
   data: T;
-  status?: 'success' | 'error';
+  status?: number;
   options?: any;
   query?: any;
 

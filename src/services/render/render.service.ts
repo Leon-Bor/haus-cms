@@ -4,7 +4,7 @@ import * as nunjucks from 'nunjucks';
 import { DatabaseService } from '../database/database.service';
 
 @Injectable()
-export class ViewService {
+export class RenderService {
   njk = nunjucks.configure(path.join(__dirname, '..', '..', 'views'), {
     autoescape: true,
     noCache: true,

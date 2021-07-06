@@ -1,10 +1,19 @@
-import { Controller, Get, HttpException, HttpStatus, Param, Query, Req, Response } from '@nestjs/common';
+import {
+  Controller,
+  Get,
+  HttpException,
+  HttpStatus,
+  Param,
+  Query,
+  Req,
+  Response,
+} from '@nestjs/common';
+import { RenderService } from '../../services/render/render.service';
 import { TemplateService } from '../../services/template/template.service';
-import { ViewService } from '../../services/view/view.service';
 
 @Controller()
 export class WebsiteController {
-  constructor(private viewService: ViewService) {}
+  constructor(private renderService: RenderService) {}
 
   @Get('robots.txt')
   getRobots(@Response() res): string {
@@ -12,7 +21,7 @@ export class WebsiteController {
       res.type('text/plain');
       res.send(`User-Agent: * \n Sitemap: /sitemap.xml `);
     } catch {
-      return this.viewService.render('error-404');
+      return this.renderService.render('error-404');
     }
   }
 
@@ -22,7 +31,7 @@ export class WebsiteController {
       // todo: return sitemap
       return `sitemap`;
     } catch {
-      return this.viewService.render('error-404');
+      return this.renderService.render('error-404');
     }
   }
 
@@ -33,9 +42,12 @@ export class WebsiteController {
     try {
       console.log('get website');
       console.log();
-      return this.viewService.renderPage('index', { edit: edit == 'true' || hausEdit == 'true', language });
+      return this.renderService.renderPage('index', {
+        edit: edit == 'true' || hausEdit == 'true',
+        language,
+      });
     } catch {
-      return this.viewService.render('error-404');
+      return this.renderService.render('error-404');
     }
   }
 
@@ -44,27 +56,32 @@ export class WebsiteController {
     const { edit = false, language } = query;
     const { hausEdit } = req.cookies;
     const { page0, page1, page2, page3, page4 } = params;
-    const path = `${page0.replace('index.html', 'index')}${page1 ? '/' + page1 : ''}${page2 ? '/' + page2 : ''}${page3 ? '/' + page3 : ''}${
+    const path = `${page0.replace('index.html', 'index')}${
+      page1 ? '/' + page1 : ''
+    }${page2 ? '/' + page2 : ''}${page3 ? '/' + page3 : ''}${
       page4 ? '/' + page4 : ''
     }`;
     try {
-      return this.viewService.renderPage(path, { edit: edit == 'true' || hausEdit == 'true', language });
+      return this.renderService.renderPage(path, {
+        edit: edit == 'true' || hausEdit == 'true',
+        language,
+      });
     } catch {
-      return this.viewService.render('error-404');
+      return this.renderService.render('error-404');
     }
   }
 
   @Get('*')
   get404(): string {
     try {
-      return this.viewService.render('error-404');
+      return this.renderService.render('error-404');
     } catch {
       throw new HttpException(
         {
           status: HttpStatus.INTERNAL_SERVER_ERROR,
           error: 'Something definitely went wrong here.',
         },
-        HttpStatus.INTERNAL_SERVER_ERROR
+        HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
   }

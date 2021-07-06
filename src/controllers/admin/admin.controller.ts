@@ -1,19 +1,12 @@
-import { Body, Controller, Get, Header, Logger, Param, Post, Query, Req, UploadedFile, UseGuards, UseInterceptors } from '@nestjs/common';
-import { FileInterceptor } from '@nestjs/platform-express';
-import { join } from 'path';
+import { Body, Controller, Post, Query, UseGuards } from '@nestjs/common';
 import * as dotenv from 'dotenv';
-import { diskStorage } from 'multer';
-import { createReadStream } from 'fs';
-import * as unzipper from 'unzipper';
-import { FileService } from '../../services/file/file.service';
-import { ViewService } from '../../services/view/view.service';
-import { DatabaseService } from '../../services/database/database.service';
 import { TokenGuard } from '../../guards/token.guard';
+import { DatabaseService } from '../../services/database/database.service';
 
 let env = dotenv.config().parsed;
 @Controller(env?.adminPath)
 export class AdminController {
-  constructor(private viewService: ViewService, private databaseService: DatabaseService) {}
+  constructor(private databaseService: DatabaseService) {}
 
   @Post('content')
   @UseGuards(TokenGuard)

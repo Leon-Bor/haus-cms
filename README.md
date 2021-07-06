@@ -24,8 +24,15 @@ Simple CMS for Web Developers and those who usually have nothing to do with comp
 
 ## Installation
 
+- node v15 needed
+
 ```bash
+
 $ npm install
+
+$ npm run init
+
+$ npm start
 ```
 
 ## Running the app

@@ -1,15 +1,15 @@
 import { Test, TestingModule } from '@nestjs/testing';
-import { PageGateway } from './page.gateway';
+import { WebsiteEditorGateway } from './website-editor.gateway';
 
-describe('PageGateway', () => {
-  let gateway: PageGateway;
+describe('WebsiteEditorGateway', () => {
+  let gateway: WebsiteEditorGateway;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      providers: [PageGateway],
+      providers: [WebsiteEditorGateway],
     }).compile();
 
-    gateway = module.get<PageGateway>(PageGateway);
+    gateway = module.get<WebsiteEditorGateway>(WebsiteEditorGateway);
   });
 
   it('should be defined', () => {

@@ -1,6 +1,4 @@
 const fs = require('fs');
-const htmlToTemplate = require('../parser/html-to-template');
-const htmlFindInlineEditor = require('../parser/html-find-inline-editor');
 
 if (!fs.existsSync('node_modules')) {
   console.log(`> Error: Please run "npm install" first.`);
@@ -68,20 +66,35 @@ async function init() {
   await delay();
   if (template.template == true) {
     try {
-      if (fs.existsSync('./src/templates/index.html')) fs.unlinkSync('./src/templates/index.html');
-      fs.copyFileSync('./init/index.html', './src/templates/index.html', COPYFILE_EXCL);
+      fs.mkdirSync('./dist/website/pages', { recursive: true });
+      if (fs.existsSync('./dist/website/pages/index.html')) {
+        fs.unlinkSync('./dist/website/pages/index.html');
+      }
+      fs.copyFileSync(
+        './init/index.html',
+        './dist/website/pages/index.html',
+        COPYFILE_EXCL,
+      );
 
-      if (fs.existsSync('./src/public/favicon.png')) fs.unlinkSync('./src/public/favicon.png');
-      fs.copyFileSync('./init/favicon.png', './src/public/favicon.png', COPYFILE_EXCL);
+      fs.mkdirSync('./dist/website/assets', { recursive: true });
+      if (fs.existsSync('./dist/website/assets/favicon.png')) {
+        fs.unlinkSync('./dist/website/assets/favicon.png');
+      }
+      fs.copyFileSync(
+        './init/favicon.png',
+        './dist/website/assets/favicon.png',
+        COPYFILE_EXCL,
+      );
 
-      await htmlFindInlineEditor.parse();
-      await htmlToTemplate.parse();
+      // await htmlFindInlineEditor.parse();
+      // await htmlToTemplate.parse();
       spinner.stop(true);
     } catch (error) {
+      console.log(error);
       spinner.stop(true);
       console.log('> Warning: File "index.html: already exits in "src" folder');
-      await htmlFindInlineEditor.parse();
-      await htmlToTemplate.parse();
+      // await htmlFindInlineEditor.parse();
+      // await htmlToTemplate.parse();
     }
   }
 
